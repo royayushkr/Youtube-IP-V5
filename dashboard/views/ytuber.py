@@ -554,21 +554,37 @@ def _generate_images_with_provider_pool(
     quality: str,
 ) -> List[Any]:
     provider_name = provider.lower().strip()
-    return run_with_provider_keys(
-        provider_name,
-        lambda key: ThumbnailGenerator(
+    def _run_generate(key: str) -> List[Any]:
+        generator = ThumbnailGenerator(
             provider=provider_name,
             api_key=key,
             model=model,
-        ).generate(
-            title=title,
-            context=context,
-            style=style,
-            negative_prompt=negative_prompt,
-            count=count,
-            size=size,
-            quality=quality,
-        ),
+        )
+        try:
+            return generator.generate(
+                title=title,
+                context=context,
+                style=style,
+                negative_prompt=negative_prompt,
+                count=count,
+                size=size,
+                quality=quality,
+            )
+        except TypeError as exc:
+            if "unexpected keyword argument 'quality'" not in str(exc):
+                raise
+            return generator.generate(
+                title=title,
+                context=context,
+                style=style,
+                negative_prompt=negative_prompt,
+                count=count,
+                size=size,
+            )
+
+    return run_with_provider_keys(
+        provider_name,
+        _run_generate,
         retryable_error=_is_ai_retryable_error,
     )
 
