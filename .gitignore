@@ -31,3 +31,4 @@ outputs/reports/
 
 # Local configs
 config/*.local.yaml
+.streamlit/secrets.toml

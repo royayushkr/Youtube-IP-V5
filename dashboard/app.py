@@ -12,7 +12,7 @@ from dashboard.views import channel_analysis, recommendations, ytuber
 
 
 st.set_page_config(
-    page_title="YouTube Creator Insights | Purdue × Google",
+    page_title="YouTube IP V3",
     page_icon="📺",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -283,9 +283,9 @@ def _render_hero() -> None:
     st.markdown(
         """
         <div class="fade-in" style="margin-bottom: 1.0rem;">
-            <div class="yt-page-title">YouTube Creator Insights Platform</div>
+            <div class="yt-page-title">YouTube IP V3</div>
             <div class="yt-page-subtitle">
-                Purdue University × Google • Channel analytics, content intelligence, and AI-assisted strategy for YouTube creators.
+                Cross-channel analytics, benchmarking, and AI-assisted planning for YouTube creators.
             </div>
         </div>
         """,
@@ -307,23 +307,42 @@ elif page == "Recommendations":
 elif page == "Ytuber":
     ytuber.render()
 else:
-    st.title("Deploy Notes")
+    st.title("Deployment")
     st.markdown(
         """
-        ### Environment Variables
-        - `YOUTUBE_API_KEY` for channel stats pull
-        - `GEMINI_API_KEY` for titles/descriptions/scripts/thumbnails
-        - `OPENAI_API_KEY` optional fallback for thumbnail generation
+        Deploy this repo directly from GitHub to Streamlit Community Cloud.
 
         ### Local Run
         ```bash
+        python3 -m venv .venv
         source .venv/bin/activate
-        streamlit run dashboard/app.py
+        pip install -r requirements.txt
+        streamlit run streamlit_app.py
         ```
 
-        ### Streamlit Cloud
-        1. Push this repo to GitHub.
-        2. Create a new Streamlit app with entrypoint `dashboard/app.py`.
-        3. Add secrets for required API keys.
+        ### Streamlit Cloud Settings
+        - Repo: `royayushkr/Youtube-IP-V3`
+        - Branch: `main`
+        - Main file path: `streamlit_app.py`
+
+        ### Secrets
+        ```toml
+        YOUTUBE_API_KEY = "your_youtube_key"
+        GEMINI_API_KEY = "your_gemini_key"
+        OPENAI_API_KEY = "your_openai_key"
+        ```
+
+        `OPENAI_API_KEY` is optional if you only plan to use Gemini-backed generation.
+
+        ### Notes
+        - `dashboard/app.py` remains the main application module.
+        - `streamlit_app.py` is the root-level deployment entrypoint for Streamlit Cloud.
+        - Channel Analysis and Recommendations use the committed CSV datasets under `data/youtube api data/`.
+        - The Ytuber suite uses live API calls and requires `YOUTUBE_API_KEY`.
+
+        ### Alternate Entrypoint
+        ```bash
+        streamlit run dashboard/app.py
+        ```
         """
     )

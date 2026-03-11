@@ -12,8 +12,8 @@ def render_sidebar() -> str:
                     <span style="font-size:14px;font-weight:800;color:#FFFFFF;">▶</span>
                 </div>
                 <div>
-                    <div style="font-weight:700;font-size:14px;letter-spacing:0.08em;text-transform:uppercase;color:#FFFFFF;">Creator Insights</div>
-                    <div style="font-size:11px;color:#B0B0B0;">Purdue × Google</div>
+                    <div style="font-weight:700;font-size:14px;letter-spacing:0.08em;text-transform:uppercase;color:#FFFFFF;">YouTube IP V3</div>
+                    <div style="font-size:11px;color:#B0B0B0;">Creator Analytics Suite</div>
                 </div>
             </div>
             """,
@@ -24,7 +24,7 @@ def render_sidebar() -> str:
 
         selected = option_menu(
             menu_title=None,
-            options=["Channel Analysis", "Recommendations", "Ytuber", "Deploy Notes"],
+            options=["Channel Analysis", "Recommendations", "Ytuber", "Deployment"],
             icons=["bar-chart-fill", "bullseye", "rocket-takeoff-fill", "gear"],
             default_index=0,
             styles={
@@ -56,7 +56,7 @@ def render_sidebar() -> str:
         st.markdown(
             """
             <div style="font-size:11px;color:#B0B0B0;margin-bottom:0.4rem;">
-                Set <code>YOUTUBE_API_KEY</code>, <code>GEMINI_API_KEY</code>, and <code>OPENAI_API_KEY</code> in <code>.env</code> for full functionality.
+                Use <code>.env</code> locally or Streamlit secrets in deployment for <code>YOUTUBE_API_KEY</code>, <code>GEMINI_API_KEY</code>, and <code>OPENAI_API_KEY</code>.
             </div>
             """,
             unsafe_allow_html=True,
@@ -65,8 +65,8 @@ def render_sidebar() -> str:
         st.markdown(
             """
             <div style="font-size:10px;color:#747494;margin-top:0.6rem;line-height:1.4;">
-                <strong>Purdue University × Google</strong><br/>
-                Daniels School of Business — MS BAIM Capstone
+                <strong>Streamlit-ready deployment</strong><br/>
+                Repo: royayushkr/Youtube-IP-V3
             </div>
             """,
             unsafe_allow_html=True,

@@ -601,7 +601,7 @@ def _openai_generate_text(openai_key: str, model: str, prompt: str) -> str:
                 "role": "system",
                 "content": (
                     "You are an advanced YouTube strategist supporting the "
-                    "Purdue × Google Creator Insights project. "
+                    "YouTube IP V3 creator analytics platform. "
                     "Keep outputs concise, structured, and actionable."
                 ),
             },
