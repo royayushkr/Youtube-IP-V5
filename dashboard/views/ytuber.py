@@ -20,7 +20,6 @@ except Exception:
 from dashboard.components.visualizations import (
     kpi_row,
     plotly_bar_chart,
-    plotly_gauge_chart,
     plotly_heatmap,
     plotly_line_chart,
     plotly_radar_chart,
@@ -279,14 +278,14 @@ def _inject_ytuber_css() -> None:
         }
         .ytuber-subtitle {
             font-size: 15px;
-            color: #C5CEE6;
+            color: #D4DBEE;
             max-width: 680px;
             margin: 0 auto;
         }
         .ytuber-search-meta {
             margin-top: 0.9rem;
             font-size: 13px;
-            color: #AEB8D6;
+            color: #B8C2DE;
         }
         .ytuber-command-title {
             font-size: 18px;
@@ -305,7 +304,7 @@ def _inject_ytuber_css() -> None:
             font-size: 12px;
             color: #AEB8D6;
             margin-top: 0.45rem;
-            text-align: left;
+            text-align: center;
         }
         .ytuber-empty-copy {
             text-align: center;
@@ -330,6 +329,99 @@ def _inject_ytuber_css() -> None:
         .ytuber-banner-meta {
             font-size: 13px;
             color: #B7C1DD;
+        }
+        .ytuber-footer-card {
+            padding: 0.48rem 0.62rem;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.045);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .ytuber-footer-label {
+            font-size: 10px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #8D9ABF;
+        }
+        .ytuber-footer-value {
+            font-size: 15px;
+            font-weight: 700;
+            color: #FFFFFF;
+            line-height: 1.2;
+            margin-top: 0.1rem;
+        }
+        .ytuber-footer-detail {
+            font-size: 11px;
+            color: #B4BED9;
+            margin-top: 0.08rem;
+        }
+        .ytuber-score-card {
+            padding: 1rem 1.05rem;
+            border-radius: 20px;
+            background: linear-gradient(180deg, rgba(40, 50, 70, 0.96) 0%, rgba(28, 37, 56, 0.99) 100%);
+            border: 1px solid rgba(255,255,255,0.09);
+            box-shadow: 0 14px 30px rgba(8, 12, 20, 0.24);
+            margin-bottom: 0.8rem;
+        }
+        .ytuber-score-label {
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #9BA7CB;
+            margin-bottom: 0.3rem;
+        }
+        .ytuber-score-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+        }
+        .ytuber-score-value {
+            font-size: 38px;
+            line-height: 1;
+            font-weight: 800;
+            color: #FFFFFF;
+        }
+        .ytuber-score-pill {
+            padding: 0.28rem 0.65rem;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+        }
+        .ytuber-score-bar {
+            width: 100%;
+            height: 10px;
+            border-radius: 999px;
+            overflow: hidden;
+            background: rgba(255,255,255,0.07);
+            margin: 0.8rem 0 0.45rem;
+        }
+        .ytuber-score-bar span {
+            display: block;
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #FF3B30 0%, #FF8A3D 55%, #42C879 100%);
+        }
+        .ytuber-score-note {
+            font-size: 12px;
+            color: #B9C4DE;
+        }
+        .ytuber-part-card {
+            padding: 0.68rem 0.78rem;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.07);
+            margin-bottom: 0.55rem;
+        }
+        .ytuber-part-label {
+            font-size: 11px;
+            color: #9BA7CB;
+            margin-bottom: 0.1rem;
+        }
+        .ytuber-part-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #FFFFFF;
         }
         .ytuber-section-surface {
             background: rgba(255,255,255,0.04);
@@ -411,8 +503,27 @@ def _inject_ytuber_css() -> None:
             border: 1px solid rgba(255,255,255,0.12) !important;
         }
         .stTextInput > div > div > input {
-            min-height: 3.2rem !important;
+            min-height: 3.05rem !important;
+            border-radius: 14px !important;
+        }
+        div[data-testid="stTextInput"]:has(input[aria-label="Search Channel"]) [data-baseweb="input"] {
+            min-height: 3.5rem !important;
             border-radius: 999px !important;
+            border: 1px solid rgba(255,255,255,0.14) !important;
+            background: linear-gradient(180deg, rgba(46, 57, 81, 0.96) 0%, rgba(37, 47, 69, 0.99) 100%) !important;
+            box-shadow: 0 12px 26px rgba(10, 15, 24, 0.16) !important;
+        }
+        div[data-testid="stTextInput"]:has(input[aria-label="Search Channel"]) [data-baseweb="input"]:focus-within {
+            border-color: rgba(255, 86, 75, 0.45) !important;
+            box-shadow: 0 0 0 1px rgba(255, 86, 75, 0.28), 0 16px 34px rgba(10, 15, 24, 0.20) !important;
+        }
+        div[data-testid="stTextInput"]:has(input[aria-label="Search Channel"]) input {
+            font-size: 16px !important;
+            color: #FFFFFF !important;
+        }
+        .stButton > button,
+        .stFormSubmitButton > button {
+            min-height: 3.25rem;
         }
         [data-testid="stToggle"] label p,
         [data-testid="stToggle"] small {
@@ -460,26 +571,41 @@ def _render_connection_cards(provider_counts: Optional[Dict[str, int]] = None) -
     return provider_counts
 
 
-def _render_pool_footer(provider_counts: Dict[str, int]) -> None:
+def _render_pool_footer(provider_counts: Dict[str, int], workspace_meta: Optional[Dict[str, Any]] = None) -> None:
     st.markdown("<div style='margin-top:1.25rem;'></div>", unsafe_allow_html=True)
-    cols = st.columns(3)
-    footer_cards = [
-        ("YouTube pool", provider_counts["youtube"], "Live fetch"),
-        ("Gemini pool", provider_counts["gemini"], "AI text/image"),
-        ("OpenAI pool", provider_counts["openai"], "ChatGPT/image"),
-    ]
-    for col, (label, count, detail) in zip(cols, footer_cards):
-        with col:
-            st.markdown(
-                f"""
-                <div style="padding:0.45rem 0.6rem;border-radius:14px;background:rgba(255,255,255,0.045);border:1px solid rgba(255,255,255,0.08);">
-                    <div style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:#7D8AB1;">{escape(label)}</div>
-                    <div style="font-size:16px;font-weight:700;color:#FFFFFF;line-height:1.2;">{count}</div>
-                    <div style="font-size:11px;color:#A8B0CC;">{escape(detail)}</div>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
+    footer_cards: List[Tuple[str, str, str]] = []
+    if workspace_meta:
+        footer_cards.extend(
+            [
+                ("Data Source", workspace_meta.get("source_label", "Unavailable"), "How this channel was loaded"),
+                ("Channel ID", workspace_meta.get("channel_id", "Unavailable"), "Reference identifier"),
+                ("Videos In View", f"{workspace_meta.get('video_count', 0):,}", "Posts included in the workspace"),
+            ]
+        )
+
+    footer_cards.extend(
+        [
+            ("YouTube Pool", str(provider_counts["youtube"]), "Live fetch"),
+            ("Gemini Pool", str(provider_counts["gemini"]), "AI text/image"),
+            ("OpenAI Pool", str(provider_counts["openai"]), "ChatGPT/image"),
+        ]
+    )
+
+    for row_start in range(0, len(footer_cards), 3):
+        row_cards = footer_cards[row_start:row_start + 3]
+        cols = st.columns(len(row_cards))
+        for col, (label, value, detail) in zip(cols, row_cards):
+            with col:
+                st.markdown(
+                    f"""
+                    <div class="ytuber-footer-card">
+                        <div class="ytuber-footer-label">{escape(label)}</div>
+                        <div class="ytuber-footer-value">{escape(value)}</div>
+                        <div class="ytuber-footer-detail">{escape(detail)}</div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
 
 
 def _catalog_map(items: List[Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
@@ -1152,6 +1278,48 @@ def _description_score(description: str, keyword_hints: List[str]) -> Tuple[int,
     return total, parts, tips
 
 
+def _score_status(score: int) -> Tuple[str, str, str]:
+    if score >= 80:
+        return "Strong", "rgba(66, 200, 121, 0.16)", "#42C879"
+    if score >= 60:
+        return "Competitive", "rgba(255, 170, 60, 0.14)", "#FFB34D"
+    return "Needs Work", "rgba(255, 89, 89, 0.16)", "#FF6B6B"
+
+
+def _render_score_card(label: str, score: int, note: str) -> None:
+    status_label, status_bg, status_color = _score_status(score)
+    st.markdown(
+        f"""
+        <div class="ytuber-score-card">
+            <div class="ytuber-score-label">{escape(label)}</div>
+            <div class="ytuber-score-head">
+                <div class="ytuber-score-value">{score}</div>
+                <div class="ytuber-score-pill" style="background:{status_bg};color:{status_color};">{status_label}</div>
+            </div>
+            <div class="ytuber-score-bar"><span style="width:{max(0, min(score, 100))}%;"></span></div>
+            <div class="ytuber-score-note">{escape(note)}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def _render_score_parts(parts: Dict[str, int]) -> None:
+    entries = list(parts.items())
+    cols = st.columns(3)
+    for idx, (label, value) in enumerate(entries):
+        with cols[idx % 3]:
+            st.markdown(
+                f"""
+                <div class="ytuber-part-card">
+                    <div class="ytuber-part-label">{escape(label)}</div>
+                    <div class="ytuber-part-value">{value}</div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+
 def _compute_channel_audit(df: pd.DataFrame) -> Dict[str, Any]:
     out: Dict[str, Any] = {}
     ordered = df.sort_values("video_publishedAt").copy()
@@ -1491,6 +1659,7 @@ def _render_keyword_intel(channel_df: pd.DataFrame) -> List[str]:
 
 def _render_title_seo_lab(keyword_hints: List[str]) -> None:
     section_header("Title & SEO Lab", icon="🧪")
+    st.caption("Scores update as the title or description changes. Use this editor to pressure-test hooks before you generate more ideas.")
     test_title = st.text_input("Test title", value="The Hidden Physics Trick That Changes Everything")
     test_desc = st.text_area(
         "Test description",
@@ -1501,24 +1670,62 @@ def _render_title_seo_lab(keyword_hints: List[str]) -> None:
     title_score, parts, tips = _title_score(test_title, keyword_hints)
     desc_score, desc_parts, desc_tips = _description_score(test_desc, keyword_hints)
 
-    c1, c2 = st.columns(2)
-    with c1:
-        gauge = plotly_gauge_chart(title_score, "Title Score", max_val=100)
-        st.plotly_chart(gauge, use_container_width=True)
-        styled_dataframe(pd.DataFrame([parts]), title="Title Score Breakdown")
-    with c2:
-        gauge2 = plotly_gauge_chart(desc_score, "Description Score", max_val=100)
-        st.plotly_chart(gauge2, use_container_width=True)
-        styled_dataframe(pd.DataFrame([desc_parts]), title="Description Score Breakdown")
+    summary_cols = st.columns(2)
+    with summary_cols[0]:
+        _render_score_card(
+            "Title Score",
+            title_score,
+            "Higher scores usually mean stronger hook clarity, keyword fit, and click potential.",
+        )
+    with summary_cols[1]:
+        _render_score_card(
+            "Description Score",
+            desc_score,
+            "Descriptions should support search relevance, next-step CTAs, and on-page structure.",
+        )
 
-    if tips:
-        st.markdown("**Title suggestions**")
-        for t in tips:
-            st.markdown(f"- {t}")
-    if desc_tips:
-        st.markdown("**Description suggestions**")
-        for t in desc_tips:
-            st.markdown(f"- {t}")
+    detail_cols = st.columns(2)
+    with detail_cols[0]:
+        st.markdown("**Title Breakdown**")
+        _render_score_parts(parts)
+        if tips:
+            st.markdown("**Title Recommendations**")
+            for tip in tips:
+                st.markdown(f"- {tip}")
+    with detail_cols[1]:
+        st.markdown("**Description Breakdown**")
+        _render_score_parts(desc_parts)
+        if desc_tips:
+            st.markdown("**Description Recommendations**")
+            for tip in desc_tips:
+                st.markdown(f"- {tip}")
+
+    if keyword_hints:
+        st.markdown("**Priority Keywords To Weave In**")
+        styled_keyword_chips(keyword_hints[:8])
+
+    action_cols = st.columns([1.2, 1.2, 1.6])
+    with action_cols[0]:
+        if st.button("Prepare Better Titles In AI Studio", use_container_width=True, key="ytuber_title_to_ai"):
+            st.session_state["ytuber_ai_task"] = "Titles Only"
+            st.session_state["ytuber_creative_brief"] = (
+                f"Improve this title direction for stronger CTR and search intent: {test_title}. "
+                f"Description context: {test_desc[:400]}"
+            )
+            st.success("AI Studio is prefilled for title generation. Open the AI Studio tab.")
+    with action_cols[1]:
+        if st.button("Prepare Video Ideas In AI Studio", use_container_width=True, key="ytuber_ideas_to_ai"):
+            st.session_state["ytuber_ai_task"] = "Video Ideas"
+            st.session_state["ytuber_creative_brief"] = (
+                f"Use this as the seed concept and expand into new video ideas: {test_title}. "
+                f"Description context: {test_desc[:400]}"
+            )
+            st.success("AI Studio is prefilled for video ideation. Open the AI Studio tab.")
+    with action_cols[2]:
+        st.markdown(
+            "<div style='font-size:12px;color:#AEB8D6;padding-top:0.5rem;'>Use AI Studio when the title direction is weak, the channel needs alternate angles, or you want batch ideas from the same concept.</div>",
+            unsafe_allow_html=True,
+        )
 
 
 def _render_competitor_benchmark(
@@ -2273,13 +2480,13 @@ def render() -> None:
                 <span class="ytuber-brand-dot"></span>
                 YouTube IP V3
             </div>
-            <div class="ytuber-kicker">YouTube search and creator intelligence</div>
-            <div class="ytuber-title">Search any YouTube channel and open a live growth workspace.</div>
+            <div class="ytuber-kicker">YouTube Search And Creator Intelligence</div>
+            <div class="ytuber-title">Search Any YouTube Channel and Open a Live Growth Workspace.</div>
             <div class="ytuber-subtitle">
-                Pull recent channel performance, compare it against competitors, and turn the same live data
-                into ideas, scripts, thumbnails, and publishing decisions.
+                Review live channel performance, benchmark against competitors, and move directly into AI-assisted planning,
+                titles, scripts, thumbnails, and publishing decisions.
             </div>
-            <div class="ytuber-search-meta">One search input. Live channel sync. AI Studio first.</div>
+            <div class="ytuber-search-meta">Live Channel Sync. Competitive Context. AI Studio First.</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -2289,7 +2496,7 @@ def render() -> None:
     with search_col:
         st.markdown(
             """
-            <div class="ytuber-command-title">Start with a channel</div>
+            <div class="ytuber-command-title">Start With a Channel</div>
             <div class="ytuber-command-subtitle">
                 Search by handle, channel name, or channel ID to launch the workspace.
             </div>
@@ -2299,7 +2506,7 @@ def render() -> None:
         input_cols = st.columns([4.2, 1.45], gap="small")
         with input_cols[0]:
             growth_prompt = st.text_input(
-                "Channel",
+                "Search Channel",
                 key="ytuber_growth_prompt",
                 placeholder="Search YouTube by @handle, channel name, or UC channel ID",
                 label_visibility="collapsed",
@@ -2322,12 +2529,12 @@ def render() -> None:
         with meta_cols[1]:
             if detected_channel:
                 st.markdown(
-                    f"<div class='ytuber-toolbar-note'>Ready to search <code>{escape(detected_channel)}</code></div>",
+                    f"<div class='ytuber-toolbar-note'>Ready To Search: {escape(detected_channel)}</div>",
                     unsafe_allow_html=True,
                 )
             else:
                 st.markdown(
-                    "<div class='ytuber-toolbar-note'>Use a handle like <code>@veritasium</code> or paste a channel ID.</div>",
+                    "<div class='ytuber-toolbar-note'>Use a Handle Like @veritasium or Paste a Channel ID.</div>",
                     unsafe_allow_html=True,
                 )
 
@@ -2382,10 +2589,7 @@ def render() -> None:
         f"""
         <div class="ytuber-banner">
             <div class="ytuber-banner-title">{escape(channel_title)}</div>
-            <div class="ytuber-banner-meta">
-                Loaded from <code>{escape(source)}</code> • Channel ID <code>{escape(channel_id)}</code> •
-                {len(channel_df):,} videos in view
-            </div>
+            <div class="ytuber-banner-meta">Live Workspace Ready</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -2410,4 +2614,11 @@ def render() -> None:
     with tabs[6]:
         _render_content_planner(channel_df)
 
-    _render_pool_footer(provider_counts)
+    _render_pool_footer(
+        provider_counts,
+        workspace_meta={
+            "source_label": source.replace("_", " ").title() if source else "Unavailable",
+            "channel_id": channel_id,
+            "video_count": len(channel_df),
+        },
+    )

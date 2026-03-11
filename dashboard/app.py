@@ -15,7 +15,7 @@ st.set_page_config(
     page_title="YouTube IP V3",
     page_icon="📺",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 
 
@@ -44,6 +44,14 @@ def _inject_global_css() -> None:
     [data-testid="stSidebar"] {
         background: linear-gradient(180deg, #0F0F23 0%, #1A1A2E 50%, #0F0F23 100%) !important;
         border-right: 1px solid rgba(255,255,255,0.06);
+    }
+    [data-testid="stSidebarCollapsedControl"] button,
+    [data-testid="collapsedControl"] button {
+        background: rgba(255,255,255,0.08) !important;
+        border: 1px solid rgba(255,255,255,0.12) !important;
+        border-radius: 999px !important;
+        color: #FFFFFF !important;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.22) !important;
     }
 
     /* Scrollbar */
