@@ -297,7 +297,7 @@ _inject_global_css()
 
 page = render_sidebar()
 
-if page in {"Channel Analysis", "Recommendations", "Ytuber"}:
+if page in {"Channel Analysis", "Recommendations"}:
     _render_hero()
 
 if page == "Channel Analysis":

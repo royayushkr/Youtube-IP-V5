@@ -100,6 +100,103 @@ PROVIDER_LABELS = {
     "gemini": "Gemini",
     "openai": "OpenAI / ChatGPT",
 }
+TEXT_MODEL_CATALOG = {
+    "gemini": [
+        {
+            "id": "gemini-2.5-flash-lite",
+            "label": "Gemini 2.5 Flash-Lite",
+            "summary": "Fastest and lowest-cost Gemini text model",
+            "input_per_million": 0.10,
+            "output_per_million": 0.40,
+        },
+        {
+            "id": "gemini-2.5-flash",
+            "label": "Gemini 2.5 Flash",
+            "summary": "Balanced reasoning, speed, and quality",
+            "input_per_million": 0.30,
+            "output_per_million": 2.50,
+        },
+    ],
+    "openai": [
+        {
+            "id": "gpt-4o-mini",
+            "label": "GPT-4o mini",
+            "summary": "Fast, affordable model for production tasks",
+            "input_per_million": 0.15,
+            "output_per_million": 0.60,
+        },
+        {
+            "id": "gpt-4.1-mini",
+            "label": "GPT-4.1 mini",
+            "summary": "Stronger instruction following at moderate cost",
+            "input_per_million": 0.40,
+            "output_per_million": 1.60,
+        },
+        {
+            "id": "gpt-4.1",
+            "label": "GPT-4.1",
+            "summary": "Higher-quality non-reasoning model",
+            "input_per_million": 2.00,
+            "output_per_million": 8.00,
+        },
+        {
+            "id": "gpt-4o",
+            "label": "GPT-4o",
+            "summary": "Flagship general-purpose model",
+            "input_per_million": 2.50,
+            "output_per_million": 10.00,
+        },
+    ],
+}
+IMAGE_MODEL_CATALOG = {
+    "gemini": [
+        {
+            "id": "gemini-2.5-flash-image",
+            "label": "Gemini 2.5 Flash Image",
+            "summary": "Native Gemini image generation optimized for speed",
+            "per_image": 0.039,
+            "input_per_million": 0.30,
+            "size_options": ["1024x1024"],
+            "quality_options": ["standard"],
+        },
+    ],
+    "openai": [
+        {
+            "id": "gpt-image-1-mini",
+            "label": "GPT Image 1 Mini",
+            "summary": "Lower-cost thumbnail generation",
+            "pricing": {
+                "low": {"1024x1024": 0.005, "1024x1536": 0.006, "1536x1024": 0.006},
+                "medium": {"1024x1024": 0.011, "1024x1536": 0.015, "1536x1024": 0.015},
+                "high": {"1024x1024": 0.036, "1024x1536": 0.052, "1536x1024": 0.052},
+            },
+            "size_options": ["1024x1024", "1024x1536", "1536x1024"],
+            "quality_options": ["low", "medium", "high"],
+        },
+        {
+            "id": "gpt-image-1",
+            "label": "GPT Image 1",
+            "summary": "Higher-fidelity image generation",
+            "pricing": {
+                "low": {"1024x1024": 0.011, "1024x1536": 0.016, "1536x1024": 0.016},
+                "medium": {"1024x1024": 0.042, "1024x1536": 0.063, "1536x1024": 0.063},
+                "high": {"1024x1024": 0.167, "1024x1536": 0.250, "1536x1024": 0.250},
+            },
+            "size_options": ["1024x1024", "1024x1536", "1536x1024"],
+            "quality_options": ["low", "medium", "high"],
+        },
+    ],
+}
+AUDIENCE_OPTIONS = ["Broad", "Beginner", "Intermediate", "Advanced"]
+FORMAT_OPTIONS = ["Long-form", "Shorts", "Mixed"]
+STRATEGY_FILTERS = [
+    "Evergreen",
+    "Search-first",
+    "Trend-reactive",
+    "Authority-building",
+    "High CTR",
+    "Sponsor-safe",
+]
 
 
 def _safe_get(d: Dict[str, Any], path: List[str], default=None):
@@ -143,38 +240,94 @@ def _inject_ytuber_css() -> None:
         """
         <style>
         .ytuber-hero {
-            text-align: center;
-            max-width: 980px;
-            margin: 0 auto 1.25rem;
+            max-width: 1080px;
+            margin: 0 auto 1.5rem;
+        }
+        .ytuber-brand-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.55rem;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+        .ytuber-brand-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.45rem 0.75rem;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: #FFFFFF;
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+        .ytuber-brand-badge.soft {
+            color: #A8B0CC;
         }
         .ytuber-kicker {
             font-size: 12px;
             letter-spacing: 0.18em;
             text-transform: uppercase;
             color: #7D8AB1;
-            margin-bottom: 0.45rem;
+            margin-bottom: 0.6rem;
+            text-align: center;
         }
         .ytuber-title {
-            font-size: clamp(36px, 5vw, 58px);
-            line-height: 1.05;
+            font-size: clamp(38px, 5vw, 64px);
+            line-height: 0.98;
             font-weight: 800;
             color: #FFFFFF;
-            margin-bottom: 0.45rem;
+            margin-bottom: 0.8rem;
+            text-align: center;
         }
         .ytuber-subtitle {
-            font-size: 15px;
+            font-size: 17px;
             color: #A8B0CC;
-            max-width: 740px;
+            max-width: 820px;
             margin: 0 auto;
+            text-align: center;
+        }
+        .ytuber-feature-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.65rem;
+            justify-content: center;
+            margin: 1.15rem auto 0;
+            max-width: 900px;
+        }
+        .ytuber-feature-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.55rem 0.85rem;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: #E8EBF8;
+            font-size: 13px;
         }
         .ytuber-command-card {
             max-width: 1040px;
-            margin: 0 auto 1.25rem;
-            padding: 1.25rem 1.35rem 1.1rem;
+            margin: 0 auto 1.1rem;
+            padding: 1.35rem 1.35rem 1.1rem;
             border-radius: 28px;
             background: linear-gradient(180deg, rgba(20,23,42,0.95) 0%, rgba(11,13,28,0.96) 100%);
             border: 1px solid rgba(255,255,255,0.08);
             box-shadow: 0 30px 80px rgba(0,0,0,0.45);
+        }
+        .ytuber-command-title {
+            font-size: 26px;
+            color: #FFFFFF;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            text-align: center;
+        }
+        .ytuber-command-subtitle {
+            font-size: 14px;
+            color: #A8B0CC;
+            text-align: center;
+            margin-bottom: 0.95rem;
         }
         .ytuber-status-card {
             min-height: 96px;
@@ -225,12 +378,13 @@ def _inject_ytuber_css() -> None:
     )
 
 
-def _render_connection_cards() -> Dict[str, int]:
-    provider_counts = {
-        "youtube": get_provider_key_count("youtube"),
-        "gemini": get_provider_key_count("gemini"),
-        "openai": get_provider_key_count("openai"),
-    }
+def _render_connection_cards(provider_counts: Optional[Dict[str, int]] = None) -> Dict[str, int]:
+    if provider_counts is None:
+        provider_counts = {
+            "youtube": get_provider_key_count("youtube"),
+            "gemini": get_provider_key_count("gemini"),
+            "openai": get_provider_key_count("openai"),
+        }
 
     cards = [
         ("YouTube Pool", provider_counts["youtube"], "Live channel fetch and benchmarking"),
@@ -253,6 +407,78 @@ def _render_connection_cards() -> Dict[str, int]:
             )
 
     return provider_counts
+
+
+def _catalog_map(items: List[Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
+    return {item["id"]: item for item in items}
+
+
+def _format_text_model_option(provider: str, model_id: str) -> str:
+    meta = _catalog_map(TEXT_MODEL_CATALOG[provider])[model_id]
+    return f"{meta['label']}  •  ${meta['input_per_million']}/${meta['output_per_million']} per 1M in/out"
+
+
+def _format_image_model_option(provider: str, model_id: str) -> str:
+    meta = _catalog_map(IMAGE_MODEL_CATALOG[provider])[model_id]
+    if provider == "gemini":
+        return f"{meta['label']}  •  ~${meta['per_image']:.3f} per image"
+    default_quality = meta["quality_options"][1] if len(meta["quality_options"]) > 1 else meta["quality_options"][0]
+    default_size = meta["size_options"][0]
+    default_cost = meta["pricing"][default_quality][default_size]
+    return f"{meta['label']}  •  from ${default_cost:.3f} per image"
+
+
+def _estimate_text_cost(
+    provider: str,
+    model_id: str,
+    task: str,
+    idea_count: int,
+    script_count: int,
+    thumbnail_count: int,
+) -> Tuple[int, int, float]:
+    meta = _catalog_map(TEXT_MODEL_CATALOG[provider])[model_id]
+
+    base_input_tokens = 1800
+    output_tokens = 0
+    if task == "Full Pack (titles + descriptions + scripts + thumbnail concepts)":
+        output_tokens = idea_count * 240 + script_count * 1100 + thumbnail_count * 80
+    elif task == "Video Ideas":
+        output_tokens = idea_count * 180
+    elif task == "Niche Expansion":
+        output_tokens = idea_count * 220
+    elif task == "Titles Only":
+        output_tokens = max(idea_count, 1) * 90
+    elif task == "Descriptions Only":
+        output_tokens = max(idea_count, 1) * 180
+    elif task == "Scripts Only":
+        output_tokens = script_count * 1400
+    elif task == "Hooks + CTAs":
+        output_tokens = max(idea_count, 1) * 120
+    elif task == "Shorts Ideas":
+        output_tokens = idea_count * 130
+    elif task == "Thumbnail Concepts":
+        output_tokens = thumbnail_count * 75
+
+    estimated_cost = (
+        (base_input_tokens / 1_000_000) * meta["input_per_million"]
+        + (output_tokens / 1_000_000) * meta["output_per_million"]
+    )
+    return base_input_tokens, output_tokens, estimated_cost
+
+
+def _estimate_image_cost(
+    provider: str,
+    model_id: str,
+    image_count: int,
+    size: str,
+    quality: str,
+) -> Tuple[float, float]:
+    meta = _catalog_map(IMAGE_MODEL_CATALOG[provider])[model_id]
+    if provider == "gemini":
+        per_image = meta["per_image"]
+    else:
+        per_image = meta["pricing"][quality][size]
+    return per_image, per_image * image_count
 
 
 def _is_youtube_retryable_error(exc: Exception) -> bool:
@@ -324,6 +550,8 @@ def _generate_images_with_provider_pool(
     style: str,
     negative_prompt: str,
     count: int,
+    size: str,
+    quality: str,
 ) -> List[Any]:
     provider_name = provider.lower().strip()
     return run_with_provider_keys(
@@ -338,6 +566,8 @@ def _generate_images_with_provider_pool(
             style=style,
             negative_prompt=negative_prompt,
             count=count,
+            size=size,
+            quality=quality,
         ),
         retryable_error=_is_ai_retryable_error,
     )
@@ -1382,34 +1612,105 @@ def _render_ai_studio(
     if "ytuber_image_provider" not in st.session_state or st.session_state["ytuber_image_provider"] not in available_image_providers:
         st.session_state["ytuber_image_provider"] = default_image_provider
 
-    text_provider = st.selectbox(
-        "Text provider",
-        available_text_providers,
-        key="ytuber_text_provider",
-        format_func=lambda value: PROVIDER_LABELS.get(value, value.title()),
-    )
-    image_provider = st.selectbox(
-        "Image provider",
-        available_image_providers,
-        key="ytuber_image_provider",
-        format_func=lambda value: PROVIDER_LABELS.get(value, value.title()),
-    )
+    control_col1, control_col2 = st.columns(2)
+    with control_col1:
+        text_provider = st.selectbox(
+            "Text provider",
+            available_text_providers,
+            key="ytuber_text_provider",
+            format_func=lambda value: PROVIDER_LABELS.get(value, value.title()),
+        )
+        text_model_options = [item["id"] for item in TEXT_MODEL_CATALOG[text_provider]]
+        if (
+            "ytuber_text_model_selection" not in st.session_state
+            or st.session_state["ytuber_text_model_selection"] not in text_model_options
+        ):
+            st.session_state["ytuber_text_model_selection"] = text_model_options[0]
+        text_model = st.selectbox(
+            "Text model",
+            text_model_options,
+            key="ytuber_text_model_selection",
+            format_func=lambda value: _format_text_model_option(text_provider, value),
+        )
+        text_model_meta = _catalog_map(TEXT_MODEL_CATALOG[text_provider])[text_model]
+        st.caption(
+            f"{text_model_meta['summary']}  •  "
+            f"${text_model_meta['input_per_million']}/1M input tokens  •  "
+            f"${text_model_meta['output_per_million']}/1M output tokens"
+        )
 
-    default_text_model = "gemini-2.0-flash" if text_provider == "gemini" else "gpt-4.1-mini"
-    text_model = st.text_input(
-        "Text model",
-        value=default_text_model,
-        key=f"ytuber_text_model_{text_provider}",
-    )
+    with control_col2:
+        image_provider = st.selectbox(
+            "Image provider",
+            available_image_providers,
+            key="ytuber_image_provider",
+            format_func=lambda value: PROVIDER_LABELS.get(value, value.title()),
+        )
+        image_model_options = [item["id"] for item in IMAGE_MODEL_CATALOG[image_provider]]
+        if (
+            "ytuber_image_model_selection" not in st.session_state
+            or st.session_state["ytuber_image_model_selection"] not in image_model_options
+        ):
+            st.session_state["ytuber_image_model_selection"] = image_model_options[0]
+        image_model = st.selectbox(
+            "Thumbnail model",
+            image_model_options,
+            key="ytuber_image_model_selection",
+            format_func=lambda value: _format_image_model_option(image_provider, value),
+        )
+        image_model_meta = _catalog_map(IMAGE_MODEL_CATALOG[image_provider])[image_model]
+        st.caption(image_model_meta["summary"])
 
-    default_image_model = (
-        "gemini-2.0-flash-exp-image-generation" if image_provider == "gemini" else "gpt-image-1"
-    )
-    image_model = st.text_input(
-        "Image model",
-        value=default_image_model,
-        key=f"ytuber_image_model_{image_provider}",
-    )
+    if (
+        "ytuber_image_size" not in st.session_state
+        or st.session_state["ytuber_image_size"] not in image_model_meta["size_options"]
+    ):
+        st.session_state["ytuber_image_size"] = image_model_meta["size_options"][0]
+    if (
+        "ytuber_image_quality" not in st.session_state
+        or st.session_state["ytuber_image_quality"] not in image_model_meta["quality_options"]
+    ):
+        st.session_state["ytuber_image_quality"] = image_model_meta["quality_options"][0]
+
+    image_tuning_col1, image_tuning_col2 = st.columns(2)
+    with image_tuning_col1:
+        image_size = st.selectbox(
+            "Thumbnail size",
+            image_model_meta["size_options"],
+            key="ytuber_image_size",
+            disabled=len(image_model_meta["size_options"]) == 1,
+        )
+    with image_tuning_col2:
+        image_quality = st.selectbox(
+            "Thumbnail quality",
+            image_model_meta["quality_options"],
+            key="ytuber_image_quality",
+            disabled=len(image_model_meta["quality_options"]) == 1,
+        )
+
+    quantity_col1, quantity_col2, quantity_col3 = st.columns(3)
+    with quantity_col1:
+        idea_count = st.slider("Video ideas", min_value=1, max_value=12, value=5)
+    with quantity_col2:
+        script_count = st.slider("Scripts / outlines", min_value=1, max_value=6, value=2)
+    with quantity_col3:
+        thumbnail_count = st.slider("Thumbnail options", min_value=1, max_value=6, value=3)
+
+    filter_col1, filter_col2 = st.columns(2)
+    with filter_col1:
+        audience_profile = st.selectbox("Audience level", AUDIENCE_OPTIONS, index=0)
+        format_focus = st.selectbox("Format focus", FORMAT_OPTIONS, index=0)
+    with filter_col2:
+        strategy_filters = st.multiselect(
+            "Strategy filters",
+            STRATEGY_FILTERS,
+            default=["Evergreen", "High CTR"],
+        )
+        exclude_topics = st.text_input(
+            "Exclude / avoid",
+            value="",
+            placeholder="Overused themes, competitors, claims to avoid",
+        )
 
     prompt_goal = _goal_from_prompt(st.session_state.get("ytuber_growth_prompt", ""))
     default_brief = (
@@ -1430,6 +1731,46 @@ def _render_ai_studio(
         key="ytuber_ai_task",
     )
 
+    input_tokens, output_tokens, estimated_text_cost = _estimate_text_cost(
+        text_provider,
+        text_model,
+        output_type,
+        idea_count,
+        script_count,
+        thumbnail_count,
+    )
+    image_unit_cost, estimated_image_cost = _estimate_image_cost(
+        image_provider,
+        image_model,
+        thumbnail_count,
+        image_size,
+        image_quality,
+    )
+
+    estimate_col1, estimate_col2 = st.columns(2)
+    with estimate_col1:
+        st.markdown(
+            f"""
+            <div class="yt-card" style="padding:0.85rem 1rem;margin-bottom:0.75rem;">
+                <div style="font-size:11px;color:#7D8AB1;letter-spacing:0.08em;text-transform:uppercase;">Estimated text spend</div>
+                <div style="font-size:26px;font-weight:700;color:#FFFFFF;">${estimated_text_cost:.4f}</div>
+                <div style="font-size:12px;color:#A8B0CC;margin-top:0.2rem;">~{input_tokens:,} input tokens and ~{output_tokens:,} output tokens for this task mix.</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+    with estimate_col2:
+        st.markdown(
+            f"""
+            <div class="yt-card" style="padding:0.85rem 1rem;margin-bottom:0.75rem;">
+                <div style="font-size:11px;color:#7D8AB1;letter-spacing:0.08em;text-transform:uppercase;">Estimated thumbnail spend</div>
+                <div style="font-size:26px;font-weight:700;color:#FFFFFF;">${estimated_image_cost:.4f}</div>
+                <div style="font-size:12px;color:#A8B0CC;margin-top:0.2rem;">{thumbnail_count} image(s) at about ${image_unit_cost:.4f} each using {image_model_meta['label']}.</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
     col_a, col_b = st.columns(2)
     gen_text = col_a.button("Generate AI Content", use_container_width=True)
     gen_thumb = col_b.button("Generate Thumbnail Images", use_container_width=True)
@@ -1440,6 +1781,29 @@ def _render_ai_studio(
     med_eng = float(channel_df["engagement_rate"].median() * 100)
 
     if gen_text:
+        count_instruction = ""
+        if output_type == "Full Pack (titles + descriptions + scripts + thumbnail concepts)":
+            count_instruction = (
+                f"Generate exactly {idea_count} video ideas, {script_count} scripts/outlines, "
+                f"and {thumbnail_count} thumbnail concepts."
+            )
+        elif output_type == "Video Ideas":
+            count_instruction = f"Generate exactly {idea_count} video ideas."
+        elif output_type == "Niche Expansion":
+            count_instruction = f"Generate exactly {idea_count} niche opportunities with positioning notes."
+        elif output_type == "Titles Only":
+            count_instruction = f"Generate exactly {idea_count} title options."
+        elif output_type == "Descriptions Only":
+            count_instruction = f"Generate exactly {idea_count} video descriptions."
+        elif output_type == "Scripts Only":
+            count_instruction = f"Generate exactly {script_count} script or outline drafts."
+        elif output_type == "Hooks + CTAs":
+            count_instruction = f"Generate exactly {idea_count} hook and CTA sets."
+        elif output_type == "Shorts Ideas":
+            count_instruction = f"Generate exactly {idea_count} short-form ideas."
+        elif output_type == "Thumbnail Concepts":
+            count_instruction = f"Generate exactly {thumbnail_count} thumbnail concepts."
+
         prompt = (
                 "You are an advanced YouTube strategist. "
                 "Produce concise, high-performing outputs grounded in these channel stats.\n\n"
@@ -1447,7 +1811,13 @@ def _render_ai_studio(
                 f"Videos(1y): {total_videos}, Total views: {total_views}, Avg views/video: {avg_views}, Median engagement: {med_eng:.2f}%\n"
                 f"Priority keywords: {', '.join(keyword_hints[:15])}\n"
                 f"Task: {output_type}\n"
+                f"Requested output counts: ideas={idea_count}, scripts={script_count}, thumbnails={thumbnail_count}\n"
+                f"Audience level: {audience_profile}\n"
+                f"Format focus: {format_focus}\n"
+                f"Strategy filters: {', '.join(strategy_filters) if strategy_filters else 'None'}\n"
+                f"Avoid / exclude: {exclude_topics or 'None'}\n"
                 f"Brief: {creative_brief}\n\n"
+                f"{count_instruction}\n"
                 "When relevant include:\n"
                 "- strong hooks\n"
                 "- clear structure\n"
@@ -1487,12 +1857,23 @@ def _render_ai_studio(
                     image_provider,
                     image_model.strip(),
                     title=f"Inspired by: {base_title}",
-                    context=creative_brief,
+                    context=(
+                        f"{creative_brief}\n"
+                        f"Audience level: {audience_profile}. "
+                        f"Format focus: {format_focus}. "
+                        f"Filters: {', '.join(strategy_filters) if strategy_filters else 'None'}."
+                    ),
                     style=(
                         "High contrast, one clear subject, bold science aesthetic, 16:9 composition"
                     ),
-                    negative_prompt="clutter, tiny text, low contrast",
-                    count=3,
+                    negative_prompt=(
+                        f"{exclude_topics}, clutter, tiny text, low contrast"
+                        if exclude_topics
+                        else "clutter, tiny text, low contrast"
+                    ),
+                    count=thumbnail_count,
+                    size=image_size,
+                    quality=image_quality,
                 )
                 out_dir = os.path.join("outputs", "thumbnails")
                 os.makedirs(out_dir, exist_ok=True)
@@ -1523,7 +1904,6 @@ def _render_ai_studio(
 
 
 def render() -> None:
-    st.title("Ytuber")
     if build is None:
         st.error("Missing dependency: google-api-python-client. Install with: python3 -m pip install google-api-python-client")
         return
@@ -1534,28 +1914,47 @@ def render() -> None:
         st.session_state["ytuber_growth_prompt"] = "@veritasium"
     if "ytuber_module_selection" not in st.session_state or st.session_state["ytuber_module_selection"] not in WORKSPACE_MODULES:
         st.session_state["ytuber_module_selection"] = WORKSPACE_MODULES[0]
-
-    st.caption(
-        "Creator Suite: live channel sync, analytics, benchmarking, SEO tooling, planning, and AI generation powered by background provider pools."
-    )
+    provider_counts = {
+        "youtube": get_provider_key_count("youtube"),
+        "gemini": get_provider_key_count("gemini"),
+        "openai": get_provider_key_count("openai"),
+    }
 
     st.markdown(
         """
         <div class="ytuber-hero">
-            <div class="ytuber-kicker">Live Creator Workspace</div>
-            <div class="ytuber-title">Where should we start?</div>
+            <div class="ytuber-brand-row">
+                <span class="ytuber-brand-badge">YouTube IP V3</span>
+                <span class="ytuber-brand-badge soft">Creator Intelligence Suite</span>
+            </div>
+            <div class="ytuber-kicker">Live channel intelligence for teams and creators</div>
+            <div class="ytuber-title">Audit channels, uncover keyword gaps, and ship better YouTube strategy faster.</div>
             <div class="ytuber-subtitle">
-                Paste a channel handle, name, or channel ID, then jump straight into audits, keyword intel,
-                planning, thumbnails, and AI-assisted content strategy.
+                Use one workspace for live channel audits, competitor benchmarking, content planning, and
+                AI-assisted idea, script, and thumbnail generation while keeping the existing dark product theme.
+            </div>
+            <div class="ytuber-feature-row">
+                <span class="ytuber-feature-pill">Live channel audit</span>
+                <span class="ytuber-feature-pill">Keyword and niche intelligence</span>
+                <span class="ytuber-feature-pill">Competitor benchmarking</span>
+                <span class="ytuber-feature-pill">Publishing planner</span>
+                <span class="ytuber-feature-pill">AI scripts and thumbnails</span>
             </div>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-    provider_counts = _render_connection_cards()
-
     st.markdown('<div class="ytuber-command-card">', unsafe_allow_html=True)
+    st.markdown(
+        """
+        <div class="ytuber-command-title">Start with a channel</div>
+        <div class="ytuber-command-subtitle">
+            Paste a handle, name, or channel ID, pick a quick action, and launch the live workspace.
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
     growth_prompt = st.text_input(
         "How can I help you grow?",
         key="ytuber_growth_prompt",
@@ -1615,6 +2014,7 @@ def render() -> None:
             disabled=provider_counts["youtube"] <= 0,
         )
     st.markdown("</div>", unsafe_allow_html=True)
+    _render_connection_cards(provider_counts)
 
     if provider_counts["youtube"] <= 0:
         st.warning(

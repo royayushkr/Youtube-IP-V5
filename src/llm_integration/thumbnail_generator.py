@@ -33,12 +33,18 @@ class ThumbnailGenerator:
         negative_prompt: str,
         count: int = 1,
         size: str = "1536x1024",
+        quality: Optional[str] = None,
     ) -> List[GeneratedImage]:
         prompt = self._build_prompt(title, context, style, negative_prompt)
         if self.provider == "gemini":
             return self._generate_with_gemini(prompt=prompt, count=count)
         if self.provider == "openai":
-            return self._generate_with_openai(prompt=prompt, count=count, size=size)
+            return self._generate_with_openai(
+                prompt=prompt,
+                count=count,
+                size=size,
+                quality=quality,
+            )
         raise ValueError(f"Unsupported provider: {self.provider}")
 
     @staticmethod
@@ -106,10 +112,18 @@ class ThumbnailGenerator:
                 )
         return out
 
-    def _generate_with_openai(self, prompt: str, count: int, size: str) -> List[GeneratedImage]:
+    def _generate_with_openai(
+        self,
+        prompt: str,
+        count: int,
+        size: str,
+        quality: Optional[str],
+    ) -> List[GeneratedImage]:
         endpoint = "https://api.openai.com/v1/images/generations"
         headers = {"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"}
         payload = {"model": self.model, "prompt": prompt, "n": count, "size": size}
+        if quality:
+            payload["quality"] = quality
         response = requests.post(endpoint, headers=headers, json=payload, timeout=90)
         if response.status_code >= 400:
             raise RuntimeError(
