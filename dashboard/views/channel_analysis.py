@@ -123,13 +123,13 @@ def render() -> None:
             "label": "Videos",
             "value": f"{len(filtered):,}",
             "icon": "🎬",
-            "color": "#FF0000",
+            "color": "#A855F7",
         },
         {
             "label": "Channels",
             "value": f"{filtered['channel_id'].nunique():,}",
             "icon": "📺",
-            "color": "#00D4FF",
+            "color": "#C4B5FD",
         },
         {
             "label": "Total Views",

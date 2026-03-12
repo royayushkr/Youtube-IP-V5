@@ -90,10 +90,11 @@ def _inject_outlier_css() -> None:
                 radial-gradient(circle at top left, rgba(139, 92, 246, 0.14) 0%, transparent 34%),
                 linear-gradient(180deg, rgba(26, 33, 64, 0.94) 0%, rgba(15, 19, 36, 0.98) 100%);
             border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 28px;
-            padding: 1.2rem 1.2rem 1rem;
-            box-shadow: 0 18px 44px rgba(3, 6, 20, 0.46);
-            margin-bottom: 1rem;
+            border-radius: 30px;
+            padding: 1.35rem 1.35rem 1.1rem;
+            box-shadow: 0 20px 48px rgba(3, 6, 20, 0.42);
+            margin: 0 auto 1.2rem;
+            max-width: 1140px;
         }
         [data-testid="stExpander"] {
             border: 1px solid rgba(255,255,255,0.08);
@@ -176,6 +177,9 @@ def _inject_outlier_css() -> None:
             font-size: 13px;
             line-height: 1.55;
         }
+        .outlier-control-spacer {
+            height: 1.95rem;
+        }
         .outlier-helper {
             color: #97A2C3;
             font-size: 12px;
@@ -214,6 +218,16 @@ def _inject_outlier_css() -> None:
             border: 1px solid rgba(255,255,255,0.08);
             color: #D7DDF0;
             font-size: 12px;
+        }
+        .outlier-panel-note {
+            margin-top: 1rem;
+            padding: 0.8rem 0.95rem;
+            border-radius: 18px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.03);
+            color: #B8C1DA;
+            font-size: 12px;
+            line-height: 1.6;
         }
         .outlier-section {
             margin-top: 1.7rem;
@@ -358,8 +372,8 @@ def _inject_outlier_css() -> None:
             text-decoration: none;
         }
         .outlier-chart-shell {
-            margin-bottom: 1rem;
-            padding: 0.1rem 0 0.35rem;
+            margin-bottom: 0.6rem;
+            padding: 0.1rem 0 0.2rem;
         }
         .outlier-chart-title {
             font-family: "Space Grotesk", "Plus Jakarta Sans", system-ui, sans-serif;
@@ -463,6 +477,16 @@ def _inject_outlier_css() -> None:
             color: #CBD4ED;
             font-size: 13px;
             line-height: 1.58;
+        }
+        .outlier-footnote {
+            margin-top: 0.4rem;
+            padding: 0.9rem 1rem;
+            border-radius: 18px;
+            border: 1px solid rgba(196, 181, 253, 0.12);
+            background: rgba(139, 92, 246, 0.08);
+            color: #D9DEF1;
+            font-size: 12px;
+            line-height: 1.62;
         }
         @media (max-width: 980px) {
             .outlier-title {
@@ -604,7 +628,7 @@ def _render_search_footer_note() -> None:
     st.markdown(
         (
             '<div class="outlier-helper">'
-            'Results come from the scanned cohort returned by the official YouTube API. Language filtering is heuristic-based and becomes stricter as confidence requirements increase.'
+            'Use tighter filters when you want a cleaner research set, and broader settings when you want a wider scouting pass.'
             "</div>"
         ),
         unsafe_allow_html=True,
@@ -866,7 +890,7 @@ def _render_ai_card(card: InsightCard) -> None:
     )
 
 
-def _render_ai_card_grid(title: str, cards: Sequence[InsightCard], columns: int = 3) -> None:
+def _render_ai_card_grid(title: str, cards: Sequence[InsightCard], columns: int = 2) -> None:
     if not cards:
         return
     st.markdown(f"**{title}**")
@@ -904,14 +928,14 @@ def _render_ai_report(report: OutlierAIReport) -> None:
 
     _render_ai_card_grid("Breakout Themes", report.breakout_themes, columns=2)
     _render_ai_card_grid("Title Pattern Observations", report.title_patterns, columns=2)
-    _render_ai_card_grid("Repeatable Content Angles", report.repeatable_angles, columns=3)
+    _render_ai_card_grid("Repeatable Content Angles", report.repeatable_angles, columns=2)
     _render_ai_card_grid("Notable Anomalies", report.notable_anomalies, columns=2)
 
     if report.next_steps:
         st.markdown("**What To Test Next**")
-        cols = st.columns(3, gap="medium")
+        cols = st.columns(2, gap="medium")
         for idx, step in enumerate(report.next_steps):
-            with cols[idx % 3]:
+            with cols[idx % 2]:
                 st.markdown(
                     (
                         '<div class="outlier-ai-card">'
@@ -931,7 +955,7 @@ def _render_ai_report(report: OutlierAIReport) -> None:
 
 
 def _render_methodology_section() -> None:
-    section_header("How This Works", icon="📘")
+    section_header("How This Works")
     with st.expander("Open The Metric Definitions, Filter Rules, And Caveats", expanded=False):
         left_col, right_col = st.columns(2, gap="medium")
         with left_col:
@@ -953,6 +977,10 @@ def _render_methodology_section() -> None:
                 ),
                 unsafe_allow_html=True,
             )
+        st.markdown(
+            '<div class="outlier-footnote">Results come from the scanned cohort returned by the official YouTube API. Language filtering is heuristic-based and becomes stricter as confidence requirements increase.</div>',
+            unsafe_allow_html=True,
+        )
         with right_col:
             st.markdown(
                 (
@@ -1046,7 +1074,7 @@ def render() -> None:
     with st.form("outlier_finder_search_form"):
         _render_search_header()
 
-        query_cols = st.columns([4.4, 1.25, 1.05], gap="small")
+        query_cols = st.columns([3.25, 1.1, 0.95], gap="small")
         with query_cols[0]:
             niche_query = st.text_input(
                 "Niche Or Keyword",
@@ -1054,6 +1082,7 @@ def render() -> None:
                 placeholder="AI automation, documentary storytelling, science shorts, luxury fitness...",
             )
         with query_cols[1]:
+            st.markdown('<div class="outlier-control-spacer"></div>', unsafe_allow_html=True)
             submitted = st.form_submit_button(
                 "Find Outliers",
                 type="primary",
@@ -1061,6 +1090,7 @@ def render() -> None:
                 disabled=provider_counts["youtube"] <= 0,
             )
         with query_cols[2]:
+            st.markdown('<div class="outlier-control-spacer"></div>', unsafe_allow_html=True)
             reset_clicked = st.form_submit_button("Reset Filters", use_container_width=True)
 
         filter_row_one = st.columns(4, gap="small")
@@ -1263,7 +1293,7 @@ def render() -> None:
 
     sort_cols = st.columns([2.4, 1], gap="medium")
     with sort_cols[0]:
-        section_header("Top Outliers In This Scan", icon="🎬")
+        section_header("Top Outliers In This Scan")
     with sort_cols[1]:
         sort_label = st.selectbox(
             "Sort Results By",
@@ -1314,7 +1344,7 @@ def render() -> None:
         image_columns=["Thumbnail"],
     )
 
-    section_header("Breakout Snapshot", icon="📡")
+    section_header("Breakout Snapshot")
     summary_stats = _build_summary_stats(sorted_frame)
     summary_cols = st.columns(4, gap="medium")
     summary_cards = [
@@ -1329,35 +1359,40 @@ def render() -> None:
 
     chart_top = st.columns([1.45, 1], gap="medium")
     with chart_top[0]:
-        _render_chart_shell(
-            "Breakout Map",
-            "Spot which videos are gaining velocity faster than channel size alone would suggest.",
-        )
-        st.plotly_chart(_breakout_scatter(sorted_frame), use_container_width=True)
+        with st.container(border=True):
+            _render_chart_shell(
+                "Breakout Map",
+                "Spot which videos are gaining velocity faster than channel size alone would suggest.",
+            )
+            st.plotly_chart(_breakout_scatter(sorted_frame), use_container_width=True)
     with chart_top[1]:
-        _render_chart_shell(
-            "Outlier Score By Publish Age",
-            "See whether the niche momentum is being driven by very recent uploads or older releases.",
-        )
-        st.plotly_chart(_age_bucket_chart(sorted_frame), use_container_width=True)
+        with st.container(border=True):
+            _render_chart_shell(
+                "Outlier Score By Publish Age",
+                "See whether the niche momentum is being driven by very recent uploads or older releases.",
+            )
+            st.plotly_chart(_age_bucket_chart(sorted_frame), use_container_width=True)
 
     chart_bottom = st.columns(3, gap="medium")
     with chart_bottom[0]:
-        _render_chart_shell(
-            "Winning Video Lengths",
-            "Identify which runtime buckets are overperforming in the current result set.",
-        )
-        st.plotly_chart(_duration_chart(sorted_frame), use_container_width=True)
+        with st.container(border=True):
+            _render_chart_shell(
+                "Winning Video Lengths",
+                "Identify which runtime buckets are overperforming in the current result set.",
+            )
+            st.plotly_chart(_duration_chart(sorted_frame), use_container_width=True)
     with chart_bottom[1]:
-        _render_chart_shell(
-            "Repeated Title Structures",
-            "Read the packaging patterns that appear repeatedly across the strongest videos.",
-        )
-        st.plotly_chart(_title_pattern_chart(sorted_frame), use_container_width=True)
+        with st.container(border=True):
+            _render_chart_shell(
+                "Repeated Title Structures",
+                "Read the packaging patterns that appear repeatedly across the strongest videos.",
+            )
+            st.plotly_chart(_title_pattern_chart(sorted_frame), use_container_width=True)
     with chart_bottom[2]:
-        _render_scan_quality_card(sorted_frame)
+        with st.container(border=True):
+            _render_scan_quality_card(sorted_frame)
 
-    section_header("AI Research", icon="🧠")
+    section_header("AI Research")
     st.markdown(
         (
             '<div class="outlier-empty-card">'
@@ -1379,7 +1414,7 @@ def render() -> None:
         ):
             st.session_state["outlier_page_ai_provider"] = default_provider
 
-        provider_cols = st.columns([1.1, 1.2, 1.2], gap="small")
+        provider_cols = st.columns([1.05, 1.2, 0.95], gap="small")
         with provider_cols[0]:
             provider = st.selectbox(
                 "AI Provider",
@@ -1396,6 +1431,7 @@ def render() -> None:
         with provider_cols[1]:
             model = st.selectbox("AI Model", models, key="outlier_page_ai_model")
         with provider_cols[2]:
+            st.markdown('<div class="outlier-control-spacer"></div>', unsafe_allow_html=True)
             trigger_ai = st.button("Generate AI Research", type="primary", use_container_width=True)
 
         fingerprint = _result_fingerprint(sorted_frame, result.request.niche_query)
@@ -1438,6 +1474,9 @@ def render() -> None:
             if preview_tokens:
                 st.markdown("**Repeated Title Keywords In The Scan**")
                 styled_keyword_chips(preview_tokens)
-            st.info("Generate AI research to transform the surfaced videos into theme cards, title observations, repeatable angles, and next-step recommendations.")
+            st.markdown(
+                '<div class="outlier-panel-note">Generate AI research to transform the surfaced videos into theme cards, title observations, repeatable angles, and next-step recommendations.</div>',
+                unsafe_allow_html=True,
+            )
 
     _render_methodology_section()

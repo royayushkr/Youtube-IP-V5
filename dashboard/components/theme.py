@@ -27,9 +27,11 @@ APP_THEME_CSS = """
     --app-warning: #FBBF24;
     --app-shadow: 0 18px 42px rgba(3, 6, 20, 0.52);
     --app-shadow-glow: 0 0 0 1px rgba(139, 92, 246, 0.12), 0 24px 56px rgba(83, 44, 184, 0.24);
+    --app-shadow-soft: 0 10px 24px rgba(3, 6, 20, 0.28);
     --app-radius-lg: 24px;
     --app-radius-md: 18px;
     --app-radius-pill: 999px;
+    --app-control-height: 54px;
 
     /* Backwards-compatible aliases for existing page-level CSS */
     --yt-red: #8B5CF6;
@@ -48,6 +50,7 @@ html, body, [data-testid="stAppViewContainer"] {
     background:
         radial-gradient(circle at top center, rgba(139, 92, 246, 0.16) 0%, transparent 26%),
         radial-gradient(circle at top left, rgba(168, 85, 247, 0.14) 0%, transparent 22%),
+        radial-gradient(circle at right center, rgba(96, 165, 250, 0.08) 0%, transparent 20%),
         linear-gradient(180deg, #0E1120 0%, #090B14 45%, #070912 100%) !important;
     color: var(--app-text);
     font-family: "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -77,6 +80,15 @@ html, body, [data-testid="stAppViewContainer"] {
 .block-container {
     padding-top: 2rem;
     padding-bottom: 3rem;
+}
+
+[data-testid="stVerticalBlockBorderWrapper"] {
+    border-radius: var(--app-radius-lg) !important;
+    border: 1px solid var(--app-border) !important;
+    background:
+        radial-gradient(circle at top left, rgba(139, 92, 246, 0.12) 0%, transparent 28%),
+        linear-gradient(180deg, rgba(26, 33, 64, 0.94) 0%, rgba(15, 19, 36, 0.98) 100%) !important;
+    box-shadow: var(--app-shadow) !important;
 }
 
 ::-webkit-scrollbar {
@@ -204,27 +216,58 @@ html, body, [data-testid="stAppViewContainer"] {
     background-color: rgba(255, 255, 255, 0.028);
 }
 
-button[kind="primary"], .stButton > button {
-    background: linear-gradient(90deg, var(--app-accent), var(--app-accent-2));
-    color: #FFFFFF;
-    border-radius: var(--app-radius-pill);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    padding: 0.48rem 1.2rem;
-    font-weight: 700;
-    box-shadow: 0 12px 30px rgba(54, 20, 122, 0.34);
-    transition: transform 0.12s ease-out, box-shadow 0.12s ease-out, filter 0.15s;
+.stButton > button,
+.stFormSubmitButton > button {
+    min-height: var(--app-control-height) !important;
+    border-radius: 18px !important;
+    padding: 0.75rem 1.2rem !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.01em;
+    transition: transform 0.12s ease-out, box-shadow 0.12s ease-out, filter 0.15s, border-color 0.15s;
 }
 
-button[kind="primary"]:hover, .stButton > button:hover {
+button[kind="primary"],
+.stButton > button[kind="primary"],
+.stFormSubmitButton > button[kind="primary"] {
+    background: linear-gradient(90deg, var(--app-accent), var(--app-accent-2)) !important;
+    color: #FFFFFF !important;
+    border: 1px solid rgba(196, 181, 253, 0.18) !important;
+    box-shadow: 0 14px 30px rgba(64, 24, 154, 0.34) !important;
+}
+
+button[kind="primary"]:hover,
+.stButton > button[kind="primary"]:hover,
+.stFormSubmitButton > button[kind="primary"]:hover {
     transform: translateY(-1px);
-    box-shadow: 0 18px 34px rgba(54, 20, 122, 0.42);
+    box-shadow: 0 18px 34px rgba(64, 24, 154, 0.42) !important;
     filter: brightness(1.05);
 }
 
-button[kind="secondary"] {
-    background: rgba(255, 255, 255, 0.04) !important;
+.stButton > button:not([kind="primary"]),
+.stFormSubmitButton > button:not([kind="primary"]),
+button[kind="secondary"],
+button[kind="secondaryFormSubmit"] {
+    background: rgba(255, 255, 255, 0.03) !important;
     color: var(--app-text) !important;
-    border: 1px solid rgba(196, 181, 253, 0.22) !important;
+    border: 1px solid rgba(196, 181, 253, 0.16) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), var(--app-shadow-soft) !important;
+}
+
+.stButton > button:not([kind="primary"]):hover,
+.stFormSubmitButton > button:not([kind="primary"]):hover,
+button[kind="secondary"]:hover,
+button[kind="secondaryFormSubmit"]:hover {
+    transform: translateY(-1px);
+    border-color: rgba(196, 181, 253, 0.28) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+}
+
+.stButton > button:focus-visible,
+.stFormSubmitButton > button:focus-visible {
+    outline: none !important;
+    box-shadow:
+        0 0 0 3px rgba(139, 92, 246, 0.18),
+        0 14px 30px rgba(54, 20, 122, 0.28) !important;
 }
 
 .stTextInput > div > div > input,
@@ -239,13 +282,58 @@ button[kind="secondary"] {
     border: 1px solid rgba(255, 255, 255, 0.12) !important;
     color: var(--app-text) !important;
     box-shadow: none !important;
+    min-height: var(--app-control-height) !important;
+}
+
+.stTextInput > div > div,
+.stNumberInput > div > div,
+[data-baseweb="input"],
+[data-baseweb="select"] {
+    border-radius: 16px !important;
+}
+
+.stTextInput > div > div,
+.stNumberInput > div > div,
+.stSelectbox > div > div,
+.stDateInput > div > div,
+[data-baseweb="select"] > div,
+[data-baseweb="input"] > div {
+    transition: border-color 0.14s ease-out, box-shadow 0.14s ease-out, background-color 0.14s ease-out !important;
+}
+
+.stTextInput > div > div:hover,
+.stNumberInput > div > div:hover,
+.stSelectbox > div > div:hover,
+.stDateInput > div > div:hover,
+[data-baseweb="select"] > div:hover,
+[data-baseweb="input"] > div:hover {
+    border-color: rgba(196, 181, 253, 0.20) !important;
+    background-color: rgba(15, 19, 36, 0.98) !important;
 }
 
 .stTextInput > div > div > input:focus,
 .stTextArea textarea:focus {
     outline: none !important;
-    border-color: rgba(139, 92, 246, 0.9) !important;
-    box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.32) !important;
+    border-color: rgba(139, 92, 246, 0.62) !important;
+    box-shadow: none !important;
+}
+
+.stTextInput > div > div:focus-within,
+.stNumberInput > div > div:focus-within,
+.stSelectbox > div > div:focus-within,
+.stDateInput > div > div:focus-within,
+[data-baseweb="select"] > div:focus-within,
+[data-baseweb="input"] > div:focus-within {
+    border-color: rgba(139, 92, 246, 0.62) !important;
+    box-shadow:
+        0 0 0 2px rgba(139, 92, 246, 0.14),
+        0 10px 24px rgba(8, 10, 26, 0.18) !important;
+}
+
+.stTextInput input::placeholder,
+.stTextArea textarea::placeholder {
+    color: #6F7B9F !important;
+    opacity: 1 !important;
 }
 
 .stToggle label, .stCheckbox label, .stRadio label, .stSelectbox label,
@@ -295,6 +383,10 @@ button[kind="secondary"] {
     border: 1px solid rgba(196, 181, 253, 0.16);
     color: var(--app-text);
     white-space: nowrap;
+}
+
+.metric-icon {
+    display: none !important;
 }
 
 .fade-in {

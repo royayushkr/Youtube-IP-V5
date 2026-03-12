@@ -208,7 +208,7 @@ def render() -> None:
     st.markdown("---")
 
     st.markdown('<div class="yt-card">', unsafe_allow_html=True)
-    section_header("🎨 AI Thumbnail Studio")
+    section_header("AI Thumbnail Studio")
 
     col1, col2 = st.columns(2)
     with col1:

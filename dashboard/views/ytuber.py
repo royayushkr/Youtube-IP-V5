@@ -245,7 +245,7 @@ def _inject_ytuber_css() -> None:
         [data-testid="stAppViewContainer"] {
             background:
                 radial-gradient(circle at top center, rgba(63, 85, 127, 0.42) 0%, transparent 24%),
-                radial-gradient(circle at top left, rgba(173, 34, 34, 0.16) 0%, transparent 16%),
+                radial-gradient(circle at top left, rgba(139, 92, 246, 0.16) 0%, transparent 18%),
                 linear-gradient(180deg, #2A3446 0%, #1C2433 44%, #121A27 100%) !important;
         }
         [data-testid="stAppViewBlockContainer"] {
@@ -275,8 +275,8 @@ def _inject_ytuber_css() -> None:
             width: 8px;
             height: 8px;
             border-radius: 999px;
-            background: linear-gradient(180deg, #FF5A5F, #FF2D2D);
-            box-shadow: 0 0 16px rgba(255, 90, 95, 0.55);
+            background: linear-gradient(180deg, #A855F7, #8B5CF6);
+            box-shadow: 0 0 16px rgba(139, 92, 246, 0.55);
         }
         .ytuber-kicker {
             font-size: 12px;
@@ -413,8 +413,8 @@ def _inject_ytuber_css() -> None:
             text-align: center;
             padding: 0.4rem 0.6rem;
             border-radius: 16px;
-            background: rgba(255, 59, 48, 0.14);
-            border: 1px solid rgba(255, 59, 48, 0.28);
+            background: rgba(139, 92, 246, 0.16);
+            border: 1px solid rgba(196, 181, 253, 0.22);
             color: #FFFFFF;
         }
         .outlier-score-value {
@@ -426,7 +426,7 @@ def _inject_ytuber_css() -> None:
             font-size: 10px;
             letter-spacing: 0.08em;
             text-transform: uppercase;
-            color: #FFD7D4;
+            color: #DCCFFF;
             margin-top: 0.15rem;
         }
         .outlier-metrics {
@@ -456,7 +456,7 @@ def _inject_ytuber_css() -> None:
         .outlier-link {
             margin-top: 0.7rem;
             display: inline-block;
-            color: #FF9C94 !important;
+            color: #D8C7FF !important;
             font-size: 12px;
             font-weight: 600;
             text-decoration: none;
@@ -507,7 +507,7 @@ def _inject_ytuber_css() -> None:
             display: block;
             height: 100%;
             border-radius: 999px;
-            background: linear-gradient(90deg, #FF3B30 0%, #FF8A3D 55%, #42C879 100%);
+            background: linear-gradient(90deg, #8B5CF6 0%, #A855F7 55%, #60A5FA 100%);
         }
         .ytuber-score-note {
             font-size: 12px;
@@ -552,7 +552,7 @@ def _inject_ytuber_css() -> None:
             box-shadow: 0 14px 30px rgba(8, 12, 20, 0.30) !important;
         }
         .keyword-chip {
-            background: linear-gradient(90deg, rgba(255, 61, 54, 0.20), rgba(80, 100, 152, 0.22)) !important;
+            background: linear-gradient(90deg, rgba(139, 92, 246, 0.22), rgba(96, 165, 250, 0.14)) !important;
             border: 1px solid rgba(255,255,255,0.14) !important;
         }
         .stTabs [data-baseweb="tab-list"] {
@@ -574,8 +574,8 @@ def _inject_ytuber_css() -> None:
             border: 1px solid transparent;
         }
         .stTabs [aria-selected="true"] {
-            background: rgba(255, 59, 48, 0.16) !important;
-            border-color: rgba(255, 59, 48, 0.38) !important;
+            background: rgba(139, 92, 246, 0.16) !important;
+            border-color: rgba(196, 181, 253, 0.28) !important;
         }
         .stTabs [aria-selected="true"] p {
             color: #FFFFFF !important;
@@ -593,13 +593,13 @@ def _inject_ytuber_css() -> None:
             transform: translateY(-1px);
         }
         button[kind="primary"] {
-            background: linear-gradient(90deg, #FF3B30, #D90429) !important;
-            border-color: rgba(255, 92, 92, 0.40) !important;
-            box-shadow: 0 12px 24px rgba(191, 24, 24, 0.32) !important;
+            background: linear-gradient(90deg, #8B5CF6, #A855F7) !important;
+            border-color: rgba(196, 181, 253, 0.28) !important;
+            box-shadow: 0 12px 24px rgba(83, 44, 184, 0.28) !important;
         }
         button[kind="primary"]:hover {
-            background: linear-gradient(90deg, #FF554A, #EB1D43) !important;
-            border-color: rgba(255, 120, 120, 0.48) !important;
+            background: linear-gradient(90deg, #9C74F8, #B566FA) !important;
+            border-color: rgba(196, 181, 253, 0.38) !important;
         }
         .stTextInput > div > div > input,
         .stTextArea textarea,
@@ -621,8 +621,8 @@ def _inject_ytuber_css() -> None:
             box-shadow: 0 12px 26px rgba(10, 15, 24, 0.16) !important;
         }
         div[data-testid="stTextInput"]:has(input[aria-label="Search Channel"]) [data-baseweb="input"]:focus-within {
-            border-color: rgba(255, 86, 75, 0.45) !important;
-            box-shadow: 0 0 0 1px rgba(255, 86, 75, 0.28), 0 16px 34px rgba(10, 15, 24, 0.20) !important;
+            border-color: rgba(139, 92, 246, 0.45) !important;
+            box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.24), 0 16px 34px rgba(10, 15, 24, 0.20) !important;
         }
         div[data-testid="stTextInput"]:has(input[aria-label="Search Channel"]) input {
             font-size: 16px !important;
@@ -1390,7 +1390,7 @@ def _score_status(score: int) -> Tuple[str, str, str]:
         return "Strong", "rgba(66, 200, 121, 0.16)", "#42C879"
     if score >= 60:
         return "Competitive", "rgba(255, 170, 60, 0.14)", "#FFB34D"
-    return "Needs Work", "rgba(255, 89, 89, 0.16)", "#FF6B6B"
+    return "Needs Work", "rgba(168, 85, 247, 0.16)", "#C4B5FD"
 
 
 def _render_score_card(label: str, score: int, note: str) -> None:
@@ -2554,7 +2554,7 @@ def _render_trend_radar(channel_df: pd.DataFrame) -> None:
             rising.sort_values("momentum_delta", ascending=True),
             x="keyword",
             y="momentum_delta",
-            title="🔥 Rising Keywords",
+            title="Rising Keywords",
             horizontal=True,
         )
         st.plotly_chart(rising_fig, use_container_width=True)
@@ -2564,7 +2564,7 @@ def _render_trend_radar(channel_df: pd.DataFrame) -> None:
             falling.sort_values("momentum_delta", ascending=True),
             x="keyword",
             y="momentum_delta",
-            title="❄️ Falling Keywords",
+            title="Falling Keywords",
             horizontal=True,
         )
         st.plotly_chart(falling_fig, use_container_width=True)

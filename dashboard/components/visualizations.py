@@ -69,7 +69,6 @@ def styled_metric_card(
     Leading whitespace is avoided so Markdown does not treat the block
     as an indented code block.
     """
-    icon_html = f'<span class="metric-icon">{icon}</span>' if icon else ""
     color_style = f"color:{color};" if color else ""
     delta_class = ""
     if delta:
@@ -84,7 +83,7 @@ def styled_metric_card(
         f'<div class="metric-card">'
         f'<div class="metric-label">{label}</div>'
         f'<div class="metric-value" style="{color_style}">'
-        f'{icon_html}{value}'
+        f'{value}'
         f'</div>'
         f'{delta_html}'
         f'</div>'
@@ -111,15 +110,14 @@ def kpi_row(metrics: List[Dict[str, Any]]) -> None:
 
 
 def section_header(title: str, subtitle: Optional[str] = None, icon: Optional[str] = None) -> None:
-    """Render a styled section header with optional subtitle."""
-    icon_html = f"<span>{icon}</span>" if icon else ""
+    """Render a styled text-only section header with optional subtitle."""
     st.markdown(
-        f'<div class="yt-section-header">{icon_html}<span>{title}</span></div>',
+        f'<div class="yt-section-header"><span>{title}</span></div>',
         unsafe_allow_html=True,
     )
     st.markdown('<div class="yt-section-underline"></div>', unsafe_allow_html=True)
     if subtitle:
-        st.markdown(f"<p style='color:#B0B0B0;font-size:13px;'>{subtitle}</p>", unsafe_allow_html=True)
+        st.markdown(f"<p style='color:#B8C1DA;font-size:13px;'>{subtitle}</p>", unsafe_allow_html=True)
 
 
 def animated_counter(value: float, label: str) -> None:
