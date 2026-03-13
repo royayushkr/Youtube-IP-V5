@@ -15,24 +15,31 @@ This README documents the current deployed app as it exists in this repository, 
 - how to run it locally
 - how to deploy it on Streamlit Community Cloud
 - what parts of the repo are active versus legacy scaffolding
+- how the retrieval-first assistant caches and reuses answers before calling AI
 
 ## Product Overview
 
-The app currently exposes five sidebar destinations:
+The app currently exposes seven sidebar destinations:
 
 | Page | Purpose | Main File |
 | --- | --- | --- |
 | `Channel Analysis` | Portfolio-level analytics across the bundled datasets | `dashboard/views/channel_analysis.py` |
 | `Recommendations` | Dataset-backed publishing guidance and thumbnail generation | `dashboard/views/recommendations.py` |
 | `Ytuber` | Live creator workspace for one channel at a time | `dashboard/views/ytuber.py` |
+| `Channel Insights` | Persisted public-channel snapshots and creator intelligence over time | `dashboard/views/channel_insights.py` |
 | `Outlier Finder` | Standalone niche research and outlier-video discovery | `dashboard/views/outlier_finder.py` |
+| `Tools` | Standalone utility workspace for YouTube metadata and asset downloads | `dashboard/views/tools.py` |
 | `Deployment` | Run/deploy notes shown inside the app | `dashboard/app.py` |
+
+In addition to the sidebar pages, the app now includes a **global Assistant** in the sidebar. It is available across the product and is designed to answer product-help, troubleshooting, metric-interpretation, and creator-workflow questions with a retrieval-first stack before it escalates to Gemini or OpenAI.
 
 At a high level, the app is designed for three use cases:
 
 1. Analyze existing cross-channel datasets to understand benchmark patterns.
 2. Pull live stats for a public channel and turn them into creator-focused diagnostics.
-3. Generate strategy and creative suggestions with Gemini or OpenAI using the same public data.
+3. Persist public-channel snapshots and compare topic, format, and outlier patterns over time.
+4. Generate strategy and creative suggestions with Gemini or OpenAI using the same public data.
+5. Export public YouTube assets such as thumbnails, transcripts, audio, and video from one utility page.
 
 ## What The App Includes
 
@@ -112,7 +119,37 @@ Code:
 - `src/utils/api_keys.py`
 - `src/llm_integration/thumbnail_generator.py`
 
-### 4. Outlier Finder
+### 4. Channel Insights
+
+`Channel Insights` is the new public-channel intelligence workflow for recurring creator analysis.
+
+It can:
+
+- add a public channel by URL, handle, or channel ID
+- store tracked channels in a local SQLite database
+- persist dated channel snapshots on refresh
+- compare current public performance against prior snapshots
+- surface rising and weak themes from recent public uploads
+- compare Shorts versus long-form and duration buckets
+- identify outliers and underperformers within the channel
+- recommend what to double down on, what to avoid, and what to test next
+- generate grounded video-direction suggestions from actual channel data
+
+Code:
+
+- `dashboard/views/channel_insights.py`
+- `src/services/public_channel_service.py`
+- `src/services/channel_snapshot_store.py`
+- `src/services/channel_insights_service.py`
+- `src/services/topic_analysis_service.py`
+- `src/services/channel_idea_service.py`
+- `src/utils/channel_parser.py`
+
+Storage:
+
+- `outputs/channel_insights/channel_insights.db`
+
+### 5. Outlier Finder
 
 `Outlier Finder` is a standalone niche-research page in the sidebar. It is designed to find videos that are overperforming relative to channel size, age, peers, or channel baseline within the scanned cohort returned by the official YouTube API.
 
@@ -152,6 +189,62 @@ Code:
 - `src/services/outliers_finder.py`
 - `src/services/outlier_ai.py`
 
+### 6. Tools
+
+`Tools` is a standalone utility page for public YouTube asset retrieval.
+
+It supports:
+
+- single-video metadata preview
+- batch URL processing
+- public playlist preview with selected-item operations
+- thumbnail preview and export
+- transcript language discovery and `.txt` export
+- audio download
+- video download
+- quality/format selection for single videos
+- profile-based audio/video choices for batch and playlist workflows
+
+The page is designed around three modes:
+
+- `Single`
+- `Batch`
+- `Playlist`
+
+Code:
+
+- `dashboard/views/tools.py`
+- `src/services/youtube_tools.py`
+- `src/services/transcript_service.py`
+- `src/utils/file_utils.py`
+
+### 7. Assistant
+
+The sidebar `Assistant` is a retrieval-first help and creator-support layer.
+
+It can:
+
+- answer product usage questions
+- explain metrics and caveats
+- suggest creator workflows
+- help troubleshoot missing results, failed exports, or unavailable AI features
+- reuse prior high-confidence answers before making any paid AI call
+- fall back to Gemini or OpenAI only when retrieval is insufficient
+
+Core implementation:
+
+- `dashboard/components/assistant_panel.py`
+- `src/services/assistant_service.py`
+- `src/services/retrieval_service.py`
+- `src/services/cache_service.py`
+- `src/services/assistant_knowledge.py`
+- `src/utils/text_normalization.py`
+
+Knowledge and storage:
+
+- `data/assistant/*.json`
+- `outputs/assistant/assistant_cache.db`
+
 ## Current Runtime Architecture
 
 ### App Entrypoints
@@ -176,6 +269,8 @@ There are two Streamlit entrypoints:
   - shared app theme, CSS tokens, page widths, button styling, and general chrome
 - `dashboard/components/visualizations.py`
   - reusable Plotly chart helpers, dataframe styling, keyword chips, KPI rows, and section headers
+- `dashboard/components/assistant_panel.py`
+  - sidebar assistant UI, starter prompts, answer cards, and feedback controls
 
 ### Active Service Layer
 
@@ -199,6 +294,43 @@ The current active backend logic is concentrated in a small number of files:
   - converts outlier results into structured AI research cards
   - calls Gemini or OpenAI
   - expects JSON output and falls back gracefully if parsing fails
+
+- `src/services/public_channel_service.py`
+  - shared public-channel fetch layer reused by `Ytuber` and `Channel Insights`
+  - resolves handles / channel IDs
+  - reuses the local CSV-backed cache plus live YouTube Data API refreshes
+
+- `src/services/channel_snapshot_store.py`
+  - SQLite-backed persistence for tracked channels and dated channel snapshots
+
+- `src/services/channel_insights_service.py`
+  - channel refresh orchestration
+  - baseline computation
+  - topic/format/outlier insight payload generation
+
+- `src/services/topic_analysis_service.py`
+  - title-pattern classification
+  - heuristic topic clustering
+  - duration and timing aggregations
+
+- `src/services/channel_idea_service.py`
+  - grounded “double down / avoid / test next” suggestions
+  - optional AI explanation layer on top of structured metrics
+
+- `src/services/assistant_service.py`
+  - top-level assistant orchestration
+  - intent detection
+  - page-context snapshots
+  - exact-cache -> semantic-retrieval -> knowledge -> hybrid -> LLM routing
+
+- `src/services/retrieval_service.py`
+  - local TF-IDF retrieval over curated knowledge and cached historical answers
+
+- `src/services/cache_service.py`
+  - SQLite-backed answer cache and feedback storage
+
+- `src/services/assistant_knowledge.py`
+  - JSON knowledge loading for FAQs, metric definitions, troubleshooting, and workflow guidance
 
 - `src/llm_integration/thumbnail_generator.py`
   - Gemini and OpenAI image-generation wrapper
@@ -227,6 +359,19 @@ Streamlit secrets / env vars
 -> charts, result cards, and AI panels in the Streamlit UI
 ```
 
+#### C. Retrieval-first assistant workflow
+
+```text
+User question
+-> query normalization
+-> exact cache lookup (SQLite)
+-> semantic similarity search (TF-IDF over cached answers)
+-> structured knowledge retrieval (JSON knowledge base)
+-> hybrid deterministic response when possible
+-> Gemini/OpenAI only when retrieval is insufficient
+-> cache new answer + collect helpful / not-helpful feedback
+```
+
 ## Repository Map
 
 This is the practical repository layout, not just the nominal one:
@@ -241,23 +386,27 @@ This is the practical repository layout, not just the nominal one:
 │   │   └── visualizations.py        # Plotly + dataframe helpers
 │   └── views/
 │       ├── channel_analysis.py      # Dataset analytics page
+│       ├── channel_insights.py      # Persisted public-channel insights page
 │       ├── recommendations.py       # Recommendations + thumbnail studio
 │       ├── ytuber.py                # Live creator workspace
-│       └── outlier_finder.py        # Standalone niche research page
+│       ├── outlier_finder.py        # Standalone niche research page
+│       └── tools.py                 # Standalone YouTube tools page
 ├── data/
 │   └── youtube api data/            # Bundled CSV datasets used by the app
+├── data/assistant/                  # Curated assistant knowledge records
 ├── docs/
 │   ├── ARCHITECTURE.md              # Original architecture note
 │   └── PROJECT_BRIEF.md             # Original project brief
 ├── outputs/
 │   └── thumbnails/                  # Generated image outputs
+│   └── assistant/                   # SQLite cache for assistant answers/feedback
 ├── scripts/
 │   ├── yt_api_smoketest.py          # Rich YouTube API smoke test
 │   ├── build_*_dataset.py           # Dataset builder scripts
 │   └── available_data_constraints.md
 ├── src/
-│   ├── services/                    # Active outlier + AI service layer
-│   ├── utils/                       # API-key management and helpers
+│   ├── services/                    # Active outlier, tools, and AI service layer
+│   ├── utils/                       # API-key management, file helpers, and shared utilities
 │   ├── llm_integration/             # Thumbnail generation wrapper
 │   ├── data_collection/             # Mostly legacy / empty scaffolding
 │   ├── data_processing/             # Partial older scaffolding
@@ -278,12 +427,80 @@ This repo has evolved over time. The currently deployed app does **not** use eve
 
 - `dashboard/`
 - `src/services/`
+- `src/services/public_channel_service.py`
+- `src/services/channel_snapshot_store.py`
+- `src/services/channel_insights_service.py`
+- `src/services/topic_analysis_service.py`
+- `src/services/channel_idea_service.py`
 - `src/utils/api_keys.py`
+- `src/utils/channel_parser.py`
+- `src/utils/file_utils.py`
 - `src/llm_integration/thumbnail_generator.py`
+- `dashboard/components/assistant_panel.py`
+- `src/services/assistant_service.py`
+- `src/services/retrieval_service.py`
+- `src/services/cache_service.py`
+- `src/services/assistant_knowledge.py`
+- `src/utils/text_normalization.py`
 - `data/youtube api data/`
+- `data/assistant/`
+- `outputs/channel_insights/`
 - `tests/unit/test_outliers_finder.py`
 - `tests/unit/test_outlier_ai.py`
 - `tests/integration/test_pipeline.py`
+- `tests/unit/test_text_normalization.py`
+- `tests/unit/test_cache_service.py`
+- `tests/unit/test_retrieval_service.py`
+- `tests/unit/test_assistant_service.py`
+- `tests/integration/test_assistant_flow.py`
+
+## Assistant Retrieval And Caching Flow
+
+The Assistant is intentionally retrieval-first to reduce token cost and improve speed.
+
+### Layer order
+
+1. **Exact cache lookup**
+   - normalized question + page scope + context mode
+   - reuses answers younger than 30 days when confidence is strong and feedback is not negative
+2. **Semantic cache lookup**
+   - local TF-IDF cosine similarity across prior resolved answers
+   - allows near-duplicate reuse without paying for embeddings
+3. **Structured knowledge retrieval**
+   - uses curated JSON knowledge files for product help, metrics, troubleshooting, and workflows
+4. **Hybrid deterministic answer**
+   - combines cached answers and knowledge into a structured response without calling an LLM
+5. **LLM fallback**
+   - Gemini first, OpenAI fallback
+   - used only when retrieval is insufficient, especially for creator strategy or contextual interpretation
+
+### Storage
+
+- Cache DB: `outputs/assistant/assistant_cache.db`
+- Knowledge files: `data/assistant/*.json`
+
+### What gets stored
+
+- original query
+- normalized query
+- page scope
+- context mode
+- answer text
+- answer source type (`exact_cache`, `semantic_cache`, `knowledge`, `hybrid`, `llm`)
+- confidence
+- source references
+- related questions
+- page-context snapshot
+- model/provider metadata when generation occurs
+- helpful / not-helpful feedback counts
+
+### Current limitations
+
+- SQLite persistence is local and may not survive all Streamlit Cloud redeploys
+- TF-IDF retrieval is deliberately lightweight and cheaper than embeddings, but it is weaker on heavy paraphrases
+- the strongest context support today is on `Outlier Finder`, `Ytuber`, and `Tools`
+- creator-strategy answers may still require AI fallback when product knowledge is not enough
+- Channel Insights uses public channel data only, so it does not include private owner metrics like impressions, CTR, watch time, or retention
 
 ### Present in the repo but only partially used or currently inactive
 
@@ -369,6 +586,7 @@ This matters most for:
 ### Prerequisites
 
 - Python 3.10 or newer
+- `ffmpeg` for merged video downloads and MP3 conversion in the `Tools` page
 - valid YouTube Data API credentials for live features
 - Gemini and/or OpenAI credentials for AI features
 
@@ -379,6 +597,11 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
+
+If you are running locally outside Streamlit Community Cloud, make sure `ffmpeg` is on your system path when you want:
+
+- merged video downloads in `Tools`
+- MP3 conversion in `Tools`
 
 ### Configure local secrets
 
@@ -454,6 +677,16 @@ The live app theme is defined in `.streamlit/config.toml`:
 - `backgroundColor = "#090B14"`
 - `secondaryBackgroundColor = "#141A31"`
 - `textColor = "#F7F8FC"`
+
+### Extra System Package For Tools
+
+This repo now includes a `packages.txt` file with:
+
+```text
+ffmpeg
+```
+
+Streamlit Community Cloud uses that file to install the system dependency required for merged video downloads and audio conversion in the `Tools` page.
 
 ## Outlier Finder Methodology Summary
 
@@ -533,6 +766,53 @@ It exposes controls for:
 
 Generated files are saved under `outputs/thumbnails/`.
 
+## Tools Page Notes
+
+The `Tools` page is intentionally scoped to public YouTube content and temporary downloads.
+
+### Supported V1 modes
+
+- `Single`
+  - exact metadata preview
+  - exact transcript-language selection
+  - exact audio/video format selection where available
+- `Batch`
+  - newline-separated public URLs
+  - per-item statuses
+  - per-item downloads
+- `Playlist`
+  - public playlist preview
+  - selected-item processing
+  - per-item downloads
+
+### Dependencies used by Tools
+
+- `yt-dlp`
+  - metadata extraction
+  - format listing
+  - audio/video downloads
+  - playlist expansion
+- `youtube-transcript-api`
+  - transcript language discovery
+  - transcript retrieval
+  - transcript export
+- `ffmpeg`
+  - merged video downloads
+  - MP3 conversion
+
+### Important delivery constraint
+
+`st.download_button` keeps file data in memory for the connected session. For that reason, the app blocks very large in-app downloads instead of trying to stream arbitrarily large files through Streamlit.
+
+### Known Tools limitations
+
+- public URLs only
+- no auth/cookies in V1
+- private, members-only, or region-restricted videos may fail
+- batch and playlist downloads are sequential, not parallel
+- batch and playlist modes use quality profiles instead of per-video exact format IDs
+- transcript summarization is not included in V1
+
 ## Scripts
 
 The `scripts/` directory includes the repo's operational utilities.
@@ -576,6 +856,14 @@ The current test suite includes:
   - verifies outlier search flow with mocked API responses and advanced filters
 - `tests/unit/test_text_processing.py`
 - `tests/unit/test_data_collection.py`
+- `tests/unit/test_youtube_tools.py`
+  - verifies URL validation, playlist shaping, format curation, and batch error handling
+- `tests/unit/test_transcript_service.py`
+  - verifies transcript option normalization and transcript file export
+- `tests/unit/test_file_utils.py`
+  - verifies temp-file helpers and filename sanitization
+- `tests/integration/test_tools_flow.py`
+  - verifies playlist and batch orchestration for the new Tools page
 
 Run:
 
@@ -590,7 +878,9 @@ This app is intentionally pragmatic, not a full YouTube intelligence platform wi
 Important limitations:
 
 - all live research is limited to public YouTube metadata
+- all `Tools` exports are limited to public YouTube content and Streamlit-friendly in-memory delivery
 - YouTube API search quota is expensive, especially `search.list`
+- `yt-dlp` and transcript retrieval behavior can change when YouTube changes extraction behavior
 - Outlier Finder is not an exhaustive rank tracker
 - language, geography, and subscriber-based filters are best-effort
 - some legacy folders in `src/` are still placeholders and do not reflect the live dashboard architecture

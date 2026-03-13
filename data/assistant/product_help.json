@@ -1,0 +1,101 @@
+[
+  {
+    "id": "product-overview",
+    "category": "product_help",
+    "title": "What This App Is Best For",
+    "page_scope": "global",
+    "intent_types": ["feature_onboarding", "workflow_recommendation"],
+    "tags": ["overview", "pages", "what can this app do", "start here"],
+    "content": "YouTube IP V3 combines dataset analytics, live channel diagnostics, niche outlier research, and utility exports in one Streamlit app. Use Channel Analysis for benchmark trends, Recommendations for dataset-backed guidance, Ytuber for one-channel live diagnostics, Outlier Finder for niche scouting, and Tools for transcripts, thumbnails, audio, or video exports.",
+    "related_ids": ["workflow-starting-point", "tools-page-overview", "outlier-finder-overview"],
+    "source_label": "README / Product Overview"
+  },
+  {
+    "id": "workflow-starting-point",
+    "category": "product_help",
+    "title": "Which Page Should I Start With",
+    "page_scope": "global",
+    "intent_types": ["workflow_recommendation", "feature_onboarding"],
+    "tags": ["where should i start", "workflow", "page recommendation"],
+    "content": "Start with Outlier Finder when you need niche ideas, Ytuber when you want to diagnose one public channel, Channel Analysis when you want dataset-level benchmarking, Recommendations when you want packaged publishing guidance, and Tools when you need direct transcript or media exports.",
+    "related_ids": ["product-overview", "outlier-finder-overview", "tools-page-overview"],
+    "source_label": "README / Product Overview"
+  },
+  {
+    "id": "outlier-finder-overview",
+    "category": "product_help",
+    "title": "How To Use Outlier Finder",
+    "page_scope": "outlier_finder",
+    "intent_types": ["product_support", "feature_onboarding", "workflow_recommendation"],
+    "tags": ["outlier finder", "how do i use this page", "filters", "workflow"],
+    "content": "Outlier Finder is for niche scouting. Start with a topic, set timeframe and language or region only if you need them, run the scan, review Top Outliers first, then use Breakout Snapshot to understand the pattern, and only then use AI Research to turn those signals into action ideas. Search coverage is bounded and based on the scanned cohort, not every video on YouTube.",
+    "related_ids": ["outlier-score-meaning", "language-confidence-meaning", "no-outliers-returned"],
+    "source_label": "Outlier Finder Page"
+  },
+  {
+    "id": "ytuber-overview",
+    "category": "product_help",
+    "title": "How To Use Ytuber",
+    "page_scope": "ytuber",
+    "intent_types": ["product_support", "feature_onboarding", "workflow_recommendation"],
+    "tags": ["ytuber", "live workspace", "channel audit", "ai studio"],
+    "content": "Ytuber is the live channel workspace. Paste a public channel handle, name, or channel ID, load the workspace, and move through AI Studio, Overview, Channel Audit, Keyword Intel, Title and SEO Lab, Competitor Benchmark, and Content Planner. It is best for diagnosing one channel at a time rather than broad niche discovery.",
+    "related_ids": ["ai-studio-what-it-does", "title-seo-lab-what-it-does", "competitor-benchmark-what-it-does"],
+    "source_label": "Ytuber Workspace"
+  },
+  {
+    "id": "ai-studio-what-it-does",
+    "category": "product_help",
+    "title": "What AI Studio Does",
+    "page_scope": "ytuber",
+    "intent_types": ["product_support", "feature_onboarding"],
+    "tags": ["ai studio", "titles", "scripts", "ideas", "thumbnails"],
+    "content": "AI Studio turns the current channel context into title ideas, video concepts, scripts, and thumbnails. It works best after a live channel load because it can reuse the channel's recent performance patterns, keyword hints, and optimization context.",
+    "related_ids": ["ytuber-overview", "title-seo-lab-what-it-does"],
+    "source_label": "Ytuber / AI Studio"
+  },
+  {
+    "id": "title-seo-lab-what-it-does",
+    "category": "product_help",
+    "title": "What Title And SEO Lab Does",
+    "page_scope": "ytuber",
+    "intent_types": ["product_support", "metric_interpretation"],
+    "tags": ["title and seo lab", "seo lab", "score", "title score", "description score"],
+    "content": "Title And SEO Lab is a quick diagnostic surface for title and description quality. It highlights keyword coverage, packaging gaps, and readability issues so you can decide whether to revise the title directly or hand the brief off to AI Studio for better title options or new idea angles.",
+    "related_ids": ["ai-studio-what-it-does", "outlier-score-meaning"],
+    "source_label": "Ytuber / Title And SEO Lab"
+  },
+  {
+    "id": "competitor-benchmark-what-it-does",
+    "category": "product_help",
+    "title": "What Competitor Benchmark Does",
+    "page_scope": "ytuber",
+    "intent_types": ["product_support", "workflow_recommendation"],
+    "tags": ["competitor benchmark", "compare channels", "recommendations"],
+    "content": "Competitor Benchmark compares your current channel against selected peer channels using public video data. Use it to find packaging differences, repeatable topic angles, and practical next steps rather than to declare a single winner channel.",
+    "related_ids": ["ytuber-overview", "workflow-starting-point"],
+    "source_label": "Ytuber / Competitor Benchmark"
+  },
+  {
+    "id": "tools-page-overview",
+    "category": "product_help",
+    "title": "How To Use Tools",
+    "page_scope": "tools",
+    "intent_types": ["product_support", "feature_onboarding"],
+    "tags": ["tools", "download", "transcript", "thumbnail", "audio", "video"],
+    "content": "Tools is the utility page for public YouTube assets. Single mode gives you exact metadata and format choices for one URL. Batch mode handles a list of public video URLs with per-item statuses. Playlist mode previews a public playlist, lets you choose entries, and then runs the same per-item utility actions.",
+    "related_ids": ["tools-public-only", "tools-batch-vs-playlist", "transcript-export-help"],
+    "source_label": "Tools Page"
+  },
+  {
+    "id": "tools-batch-vs-playlist",
+    "category": "product_help",
+    "title": "When To Use Batch Versus Playlist",
+    "page_scope": "tools",
+    "intent_types": ["product_support", "workflow_recommendation"],
+    "tags": ["batch", "playlist", "tools mode", "difference"],
+    "content": "Use Batch when you already have specific public video URLs. Use Playlist when the source is a public playlist URL and you want to preview entries, select a subset, and then run the same thumbnail, transcript, audio, or video action item by item.",
+    "related_ids": ["tools-page-overview", "tools-public-only"],
+    "source_label": "Tools Page"
+  }
+]

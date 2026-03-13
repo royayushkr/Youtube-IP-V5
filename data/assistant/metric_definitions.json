@@ -1,0 +1,79 @@
+[
+  {
+    "id": "outlier-score-meaning",
+    "category": "metric_definitions",
+    "title": "What The Outlier Score Means",
+    "page_scope": "outlier_finder",
+    "intent_types": ["metric_interpretation", "product_support"],
+    "tags": ["outlier score", "score", "what does this mean"],
+    "content": "Outlier Score is a weighted blend of channel-baseline lift, peer percentile, engagement percentile, and a recency boost. It helps you compare videos inside the scanned cohort returned by the official YouTube API. It is not a global YouTube ranking or a guarantee of future performance.",
+    "related_ids": ["views-per-day-meaning", "language-confidence-meaning", "outlier-finder-overview"],
+    "source_label": "Outlier Finder Methodology"
+  },
+  {
+    "id": "views-per-day-meaning",
+    "category": "metric_definitions",
+    "title": "What Views Per Day Means",
+    "page_scope": "outlier_finder",
+    "intent_types": ["metric_interpretation"],
+    "tags": ["views per day", "velocity", "performance speed"],
+    "content": "Views Per Day is the current public view count divided by the video's age in days. It is a simple velocity signal that helps compare older and newer uploads, but it is still a rough public proxy because it does not include watch time, impressions, or retention.",
+    "related_ids": ["outlier-score-meaning", "high-impressions-low-ctr"],
+    "source_label": "Outlier Finder Methodology"
+  },
+  {
+    "id": "language-confidence-meaning",
+    "category": "metric_definitions",
+    "title": "What Language Confidence Means",
+    "page_scope": "outlier_finder",
+    "intent_types": ["metric_interpretation", "troubleshooting"],
+    "tags": ["language confidence", "language filter", "strictness"],
+    "content": "Language Confidence is a heuristic score built from video and channel metadata plus title-script patterns. It becomes stricter as confidence requirements increase, but it is not a perfect language classifier. Treat it as a quality filter, not a guarantee.",
+    "related_ids": ["outlier-finder-overview", "non-english-results"],
+    "source_label": "Outlier Finder Methodology"
+  },
+  {
+    "id": "scan-quality-meaning",
+    "category": "metric_definitions",
+    "title": "What Scan Quality Tells You",
+    "page_scope": "outlier_finder",
+    "intent_types": ["metric_interpretation", "troubleshooting"],
+    "tags": ["scan quality", "coverage", "search quality"],
+    "content": "Scan Quality is a quick read on how clean and interpretable the current result set is. It is influenced by language match strength, available subscriber data, and the consistency of the scanned cohort. Lower scan quality means you should trust the result set more cautiously or adjust filters.",
+    "related_ids": ["language-confidence-meaning", "no-outliers-returned"],
+    "source_label": "Outlier Finder Snapshot"
+  },
+  {
+    "id": "title-score-meaning",
+    "category": "metric_definitions",
+    "title": "What The Title Score Means",
+    "page_scope": "ytuber",
+    "intent_types": ["metric_interpretation", "product_support"],
+    "tags": ["title score", "seo score", "title and seo lab"],
+    "content": "The Title Score is a directional optimization score, not a YouTube ranking signal. It highlights likely packaging gaps such as missing keywords, weak curiosity, low specificity, or unclear payoff. Use it to prioritize revisions, not to predict exact click-through rate.",
+    "related_ids": ["title-seo-lab-what-it-does", "high-impressions-low-ctr"],
+    "source_label": "Ytuber / Title And SEO Lab"
+  },
+  {
+    "id": "engagement-rate-meaning",
+    "category": "metric_definitions",
+    "title": "What Engagement Rate Means In This App",
+    "page_scope": "global",
+    "intent_types": ["metric_interpretation"],
+    "tags": ["engagement rate", "likes", "comments", "metric definition"],
+    "content": "In this app, engagement rate is a public-data ratio based on likes and comments relative to views. It helps compare relative audience reaction, but it does not capture watch time, saves, shares, impressions, or the quality of those interactions.",
+    "related_ids": ["views-per-day-meaning", "outlier-score-meaning"],
+    "source_label": "Shared Metric Definitions"
+  },
+  {
+    "id": "high-impressions-low-ctr",
+    "category": "metric_definitions",
+    "title": "Why High Impressions And Low CTR Matter",
+    "page_scope": "global",
+    "intent_types": ["metric_interpretation", "creator_strategy"],
+    "tags": ["impressions", "ctr", "packaging", "click-through rate"],
+    "content": "High impressions with low CTR usually point to a packaging problem rather than a distribution problem. The topic is being shown, but the title, thumbnail, or expected payoff is not persuading enough viewers to click. Focus first on packaging clarity, specificity, and curiosity balance.",
+    "related_ids": ["title-score-meaning", "why-video-not-performing"],
+    "source_label": "Creator Strategy Definitions"
+  }
+]

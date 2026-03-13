@@ -9,7 +9,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from dashboard.components.sidebar import render_sidebar
 from dashboard.components.theme import inject_shared_theme
-from dashboard.views import channel_analysis, outlier_finder, recommendations, ytuber
+from dashboard.views import channel_analysis, channel_insights, outlier_finder, recommendations, tools, ytuber
 
 
 st.set_page_config(
@@ -46,8 +46,12 @@ elif page == "Recommendations":
     recommendations.render()
 elif page == "Ytuber":
     ytuber.render()
+elif page == "Channel Insights":
+    channel_insights.render()
 elif page == "Outlier Finder":
     outlier_finder.render()
+elif page == "Tools":
+    tools.render()
 else:
     st.title("Deployment")
     st.markdown(
@@ -81,7 +85,10 @@ else:
         - `streamlit_app.py` is the root-level deployment entrypoint for Streamlit Cloud.
         - Channel Analysis and Recommendations use the committed CSV datasets under `data/youtube api data/`.
         - The Ytuber suite uses live API calls and rotates across the configured key pools.
+        - Channel Insights is a public-channel intelligence workflow that stores dated SQLite snapshots on manual refresh for trend comparison over time.
         - Outlier Finder is a standalone sidebar feature with a results-first flow, breakout snapshot, structured AI research, heuristic language filtering, and one-hour query caching.
+        - Tools is a standalone sidebar utility page for metadata preview, thumbnails, transcripts, audio, and video downloads.
+        - `packages.txt` installs `ffmpeg` for merged video downloads and MP3 conversion in the Tools page.
 
         ### Outlier Finder Methodology Summary
         - **Outlier Score:** weighted mix of baseline lift, peer percentile, engagement percentile, and recency boost.

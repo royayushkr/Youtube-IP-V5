@@ -15,3 +15,5 @@ tqdm
 pytest
 streamlit-option-menu>=0.3.12
 streamlit-lottie>=0.0.5
+yt-dlp>=2026.3.3
+youtube-transcript-api>=1.2.4

@@ -31,6 +31,7 @@ from dashboard.components.visualizations import (
     styled_keyword_chips,
 )
 from src.llm_integration.thumbnail_generator import ThumbnailGenerator
+from src.services.public_channel_service import load_public_channel_workspace
 from src.services.outliers_finder import (
     SUBSCRIBER_BUCKETS,
     OutlierSearchRequest,
@@ -1536,77 +1537,12 @@ def _fetch_or_get_cached_channel(
     force_refresh: bool,
     youtube_api_key: Optional[str] = None,
 ) -> Tuple[pd.DataFrame, str, str, str]:
-    existing_df = _load_dataset()
-    existing_df = _ensure_numeric_and_dates(existing_df) if not existing_df.empty else existing_df
-    cutoff = datetime.now(timezone.utc) - timedelta(days=365)
-
-    def _load_with_key(api_key: str) -> Tuple[pd.DataFrame, str, str, str]:
-        youtube = _yt_client(api_key)
-        channel_id = _resolve_channel_id(youtube, channel_query)
-
-        cached = pd.DataFrame()
-        if not existing_df.empty and "channel_id" in existing_df.columns:
-            cached = existing_df[existing_df["channel_id"].astype(str) == str(channel_id)].copy()
-
-        if not cached.empty and not force_refresh:
-            cached_recent = cached[cached["video_publishedAt"] >= pd.Timestamp(cutoff)]
-            if not cached_recent.empty:
-                title = (
-                    cached_recent["channel_title"].dropna().iloc[0]
-                    if "channel_title" in cached_recent.columns
-                    else channel_id
-                )
-                return cached_recent, "dataset_cache", channel_id, title
-
-        channel = _fetch_channel_details(youtube, channel_id)
-        uploads_pid = _safe_get(channel, ["contentDetails", "relatedPlaylists", "uploads"], "")
-        if not uploads_pid:
-            raise RuntimeError("Channel uploads playlist not found.")
-
-        video_ids = _fetch_recent_video_ids(youtube, uploads_pid, cutoff, max_videos=600)
-        if not video_ids:
-            if not cached.empty:
-                title = (
-                    cached["channel_title"].dropna().iloc[0]
-                    if "channel_title" in cached.columns
-                    else channel_id
-                )
-                return cached, "dataset_cache", channel_id, title
-            raise RuntimeError("No videos found in last 1 year for this channel.")
-
-        videos = _fetch_videos_details(youtube, video_ids)
-        ch = _channel_fields(channel, channel_query)
-        rows = []
-        for v in videos:
-            vid = str(v.get("id", "")).strip()
-            if not vid:
-                continue
-            rows.append(_video_row(v, ch))
-
-        new_df = pd.DataFrame(rows)
-        if new_df.empty:
-            raise RuntimeError("API returned no usable video rows.")
-
-        if not existing_df.empty and "video_id" in existing_df.columns:
-            existing_ids = set(existing_df["video_id"].dropna().astype(str).tolist())
-            new_df = new_df[~new_df["video_id"].astype(str).isin(existing_ids)]
-
-        _append_rows_to_dataset(new_df, _load_dataset())
-
-        full = _ensure_numeric_and_dates(_load_dataset())
-        channel_df = full[full["channel_id"].astype(str) == str(channel_id)].copy()
-        recent_df = channel_df[channel_df["video_publishedAt"] >= pd.Timestamp(cutoff)]
-        title = _safe_get(channel, ["snippet", "title"], channel_id)
-        return recent_df if not recent_df.empty else channel_df, "youtube_api", channel_id, str(title)
-
-    if youtube_api_key and youtube_api_key.strip():
-        return _load_with_key(youtube_api_key.strip())
-
-    return run_with_provider_keys(
-        "youtube",
-        _load_with_key,
-        retryable_error=_is_youtube_retryable_error,
+    workspace = load_public_channel_workspace(
+        channel_query=channel_query,
+        force_refresh=force_refresh,
+        youtube_api_key=youtube_api_key,
     )
+    return workspace.channel_df, workspace.source, workspace.channel_id, workspace.channel_title
 
 
 def _gemini_generate_text(gemini_key: str, model: str, prompt: str) -> str:

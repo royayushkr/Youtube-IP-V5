@@ -1,0 +1,68 @@
+[
+  {
+    "id": "improve-hooks-workflow",
+    "category": "workflow_guidance",
+    "title": "What To Do When Hooks Feel Weak",
+    "page_scope": "global",
+    "intent_types": ["creator_strategy", "workflow_recommendation"],
+    "tags": ["hooks", "openings", "retention", "first seconds"],
+    "content": "If your hooks feel weak, first use Outlier Finder to study what promises are winning in the niche, then use Ytuber Title And SEO Lab to tighten packaging, and finally use AI Studio to generate alternative opening angles or title concepts. Start with clarity and payoff, then add curiosity.",
+    "related_ids": ["workflow-starting-point", "title-seo-lab-what-it-does"],
+    "source_label": "Creator Workflow Guidance"
+  },
+  {
+    "id": "slow-growth-workflow",
+    "category": "workflow_guidance",
+    "title": "What To Optimize First When Growth Is Slow",
+    "page_scope": "global",
+    "intent_types": ["creator_strategy", "workflow_recommendation"],
+    "tags": ["slow growth", "what should i optimize first", "growth priorities"],
+    "content": "When growth is slow, optimize in this order: topic selection, packaging, then publishing consistency. Outlier Finder helps you see whether your niche has active breakout formats, Ytuber shows whether your current packaging is under-optimized, and Content Planner helps you spot timing patterns only after the first two are addressed.",
+    "related_ids": ["why-video-not-performing", "workflow-starting-point"],
+    "source_label": "Creator Workflow Guidance"
+  },
+  {
+    "id": "niche-idea-workflow",
+    "category": "workflow_guidance",
+    "title": "Best Workflow For Finding New Ideas In A Niche",
+    "page_scope": "outlier_finder",
+    "intent_types": ["workflow_recommendation", "creator_strategy"],
+    "tags": ["niche ideas", "what should i do in this niche", "idea generation"],
+    "content": "For niche idea research, start in Outlier Finder with a broad query and minimal filters. Use Breakout Snapshot to identify the repeatable pattern, then switch to AI Research for interpretation, and finally move into Ytuber AI Studio if you want title ideas or scripts shaped for your own channel context.",
+    "related_ids": ["outlier-finder-overview", "ai-studio-what-it-does"],
+    "source_label": "Outlier Finder Workflow Guidance"
+  },
+  {
+    "id": "tools-transcript-workflow",
+    "category": "workflow_guidance",
+    "title": "Best Workflow For Transcript Research",
+    "page_scope": "tools",
+    "intent_types": ["workflow_recommendation", "product_support"],
+    "tags": ["transcript", "export", "research workflow"],
+    "content": "Use Tools in Single mode when you want the cleanest transcript workflow. Load the URL, confirm transcript availability, choose the language if multiple tracks exist, and export the text before doing any downstream summarization or manual analysis. Batch and Playlist are better when you need the same export repeated across many public videos.",
+    "related_ids": ["tools-page-overview", "transcript-export-help"],
+    "source_label": "Tools Workflow Guidance"
+  },
+  {
+    "id": "transcript-export-help",
+    "category": "workflow_guidance",
+    "title": "How Transcript Export Works",
+    "page_scope": "tools",
+    "intent_types": ["product_support", "workflow_recommendation"],
+    "tags": ["transcript export", "subtitle language", "txt download"],
+    "content": "Transcript export uses the accessible subtitle tracks available for the video. If more than one language exists, choose the most useful track first. If a requested language is missing, switch to Any Available or a known subtitle code instead of assuming the video has no transcript at all.",
+    "related_ids": ["tools-public-only", "tools-transcript-workflow"],
+    "source_label": "Tools Transcript Guidance"
+  },
+  {
+    "id": "outlier-results-interpretation",
+    "category": "workflow_guidance",
+    "title": "How To Interpret Outlier Results",
+    "page_scope": "outlier_finder",
+    "intent_types": ["metric_interpretation", "workflow_recommendation"],
+    "tags": ["interpret results", "outlier signals", "what should i look at first"],
+    "content": "When interpreting Outlier Finder, read the strongest candidate titles first, then check the reason strings, then compare the Breakout Snapshot charts for age and duration clustering. If the same pattern appears across several high-scoring videos, it is more useful than any single top-ranked result.",
+    "related_ids": ["outlier-score-meaning", "scan-quality-meaning"],
+    "source_label": "Outlier Finder Workflow Guidance"
+  }
+]

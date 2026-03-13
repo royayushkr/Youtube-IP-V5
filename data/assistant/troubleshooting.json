@@ -1,0 +1,68 @@
+[
+  {
+    "id": "no-outliers-returned",
+    "category": "troubleshooting",
+    "title": "Why Outlier Finder Returned Weak Or No Results",
+    "page_scope": "outlier_finder",
+    "intent_types": ["troubleshooting", "product_support"],
+    "tags": ["no results", "empty state", "weak results", "outlier finder failed"],
+    "content": "If Outlier Finder returns no strong candidates, the most common causes are filters that are too narrow, a timeframe that is too short, or a language or region setting that reduces the scanned cohort too aggressively. Start by widening timeframe, relaxing language strictness, or lowering minimum views.",
+    "related_ids": ["language-confidence-meaning", "outlier-finder-overview"],
+    "source_label": "Outlier Finder Troubleshooting"
+  },
+  {
+    "id": "non-english-results",
+    "category": "troubleshooting",
+    "title": "Why Non-English Results Still Show Up",
+    "page_scope": "outlier_finder",
+    "intent_types": ["troubleshooting", "metric_interpretation"],
+    "tags": ["non english", "language filter", "wrong language"],
+    "content": "Language filters in Outlier Finder are heuristic. Even with a language selected, some videos can still pass if metadata is incomplete or the title uses mixed scripts. If noise is high, raise language strictness, shorten the timeframe, or add exclude keywords to clean the cohort.",
+    "related_ids": ["language-confidence-meaning", "no-outliers-returned"],
+    "source_label": "Outlier Finder Troubleshooting"
+  },
+  {
+    "id": "tools-public-only",
+    "category": "troubleshooting",
+    "title": "Why A Tool Download Or Transcript Might Fail",
+    "page_scope": "tools",
+    "intent_types": ["troubleshooting", "product_support"],
+    "tags": ["download failed", "transcript failed", "tools error", "public only"],
+    "content": "The Tools page only supports public YouTube content that can be extracted without account cookies. Private, members-only, region-blocked, rental, or age-gated content can fail even when the URL is valid. Transcript export can also fail if the video has no accessible subtitles for the requested language.",
+    "related_ids": ["transcript-export-help", "tools-page-overview"],
+    "source_label": "Tools Limitations"
+  },
+  {
+    "id": "ffmpeg-needed",
+    "category": "troubleshooting",
+    "title": "Why FFmpeg Matters In Tools",
+    "page_scope": "tools",
+    "intent_types": ["troubleshooting", "product_support"],
+    "tags": ["ffmpeg", "mp3", "merged video", "audio conversion"],
+    "content": "Tools uses FFmpeg for MP3 conversion and for downloads that need separate video and audio streams merged into one file. Without FFmpeg, simpler native downloads can still work, but conversion and some higher-quality merged outputs should be treated as unavailable.",
+    "related_ids": ["tools-page-overview", "tools-public-only"],
+    "source_label": "Tools / Deployment Notes"
+  },
+  {
+    "id": "ai-section-unavailable",
+    "category": "troubleshooting",
+    "title": "Why An AI Section Might Be Unavailable",
+    "page_scope": "global",
+    "intent_types": ["troubleshooting", "product_support"],
+    "tags": ["ai unavailable", "gemini", "openai", "api keys"],
+    "content": "AI features in this app depend on configured Gemini or OpenAI keys. If an AI panel is disabled or returns an availability warning, first confirm that the matching API key pool is set in Streamlit secrets or environment variables. Some pages also require a loaded result set before the AI layer can run.",
+    "related_ids": ["ai-studio-what-it-does", "workflow-starting-point"],
+    "source_label": "Shared AI Troubleshooting"
+  },
+  {
+    "id": "why-video-not-performing",
+    "category": "troubleshooting",
+    "title": "How To Think About A Video That Is Not Performing",
+    "page_scope": "global",
+    "intent_types": ["troubleshooting", "creator_strategy"],
+    "tags": ["video not performing", "slow growth", "low views"],
+    "content": "When a video underperforms, separate the problem into packaging, topic-market fit, and retention. Packaging problems show up when the idea is interesting but click signals are weak. Topic problems show up when even strong packaging cannot find demand. Retention problems show up when clicks happen but momentum fades quickly.",
+    "related_ids": ["high-impressions-low-ctr", "workflow-starting-point"],
+    "source_label": "Creator Troubleshooting"
+  }
+]
