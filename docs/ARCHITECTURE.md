@@ -1,155 +1,97 @@
-# YouTube IP V4 Architecture
+# YouTube IP V5 Architecture
 
-## Runtime Surface
-
-The deployable app keeps a simplified core while preserving the separate AI suite pages that still matter to the workflow.
-
-Primary sidebar order:
+## Sidebar Navigation
 
 1. `Channel Analysis`
 2. `Channel Insights`
 3. `Thumbnails`
 4. `Outlier Finder`
-
-Additional runtime pages:
-
 5. `Ytuber`
 6. `Tools`
 7. `Deployment`
 
-## Runtime Flow
+V5 removes the sidebar `Assistant` and removes Google OAuth from `Channel Insights`.
+
+## Full Runtime And Data Pipeline
+
+```mermaid
+flowchart TD
+    A["GitHub committed CSVs<br/>data/youtube api data/*.csv"] --> B["streamlit_app.py"]
+    U["User actions"] --> B
+    B --> C["dashboard/app.py"]
+    C --> D["dashboard/components/sidebar.py"]
+    D --> E["Page views"]
+
+    S["Streamlit secrets / env"] --> F["src/utils/api_keys.py"]
+    F --> G["YouTube Data API v3"]
+    F --> H["Gemini / OpenAI"]
+
+    A --> J["Channel Analysis / Thumbnails"]
+    G --> K["Ytuber / Channel Insights / Outlier Finder / Tools"]
+    H --> L["Thumbnails / Ytuber / Outlier Finder"]
+
+    J --> N["pandas transforms + service payloads"]
+    K --> N
+    L --> N
+
+    N --> P["dashboard/components/visualizations.py"]
+    P --> Q["Charts, cards, tables, downloads, AI outputs"]
+```
+
+## Page Problem Map
+
+| Page | Problem Solved | Main Services / Inputs | Main UI Outputs | Interlinks |
+| --- | --- | --- | --- | --- |
+| `Channel Analysis` | benchmark bundled datasets | CSVs, pandas, visualization helpers | KPI cards, trend charts, ranked tables | shares benchmark context with `Thumbnails` |
+| `Channel Insights` | analyze one tracked public channel over time | `public_channel_service`, `channel_snapshot_store`, `channel_insights_service`, optional BERTopic | topic trends, format analysis, outliers, next-topic ideas | can inform `Outlier Finder` themes |
+| `Thumbnails` | generate or export thumbnails without mixing broader strategy UI | `thumbnail_generator.py`, `thumbnail_hub_service.py`, public thumbnail URLs | generated thumbnails, preview cards, downloadable images | lighter replacement for the old recommendations surface |
+| `Outlier Finder` | find niche winners | `outliers_finder.py`, `outlier_ai.py`, YouTube API | scored outlier tables, breakout snapshot, AI research | receives handoff from `Ytuber` and `Channel Insights` |
+| `Ytuber` | run a live creator AI workspace | YouTube API, pooled API keys, thumbnail generator | AI Studio, audit views, keyword and planner outputs | can hand off into `Outlier Finder` |
+| `Tools` | export public YouTube assets | `youtube_tools.py`, `transcript_service.py`, `yt-dlp`, `ffmpeg` | metadata previews, transcript/audio/video/thumbnail downloads | standalone utility surface |
+| `Deployment` | explain setup and deployment | static instructions in app shell | repo, branch, secrets, deploy notes | operational reference only |
+
+## Live API Extraction Flow
 
 ```mermaid
 flowchart LR
-    A["YouTube Data API v3"] --> B["Active Service Layer"]
-    B --> C["Streamlit views"]
-    D["Gemini / OpenAI"] --> B
-    E["Optional BERTopic artifact"] --> B
-    C --> F["Channel Analysis"]
-    C --> G["Channel Insights"]
-    C --> H["Thumbnails"]
-    C --> I["Outlier Finder"]
-    C --> J["Ytuber"]
-    C --> K["Tools"]
+    A["User enters channel, keyword, or URL"] --> B["Page view"]
+    B --> C["src/utils/api_keys.py"]
+    C --> D["Selected provider key"]
+    D --> E["YouTube Data API request"]
+    E --> F["Service-layer normalization"]
+    F --> G["pandas dataframes / scored payloads"]
+    G --> H["dashboard/components/visualizations.py"]
+    H --> I["Rendered Streamlit UI"]
 ```
 
-The Streamlit entrypoint remains:
-
-- `streamlit_app.py`
-
-The routed app shell lives in:
-
-- `dashboard/app.py`
-- `dashboard/components/sidebar.py`
-
-## Current Product Shape
-
-### Channel Analysis
-
-- Reads committed CSV datasets from `data/youtube api data/`
-- Supports portfolio-style benchmarking, filters, KPI summaries, and top performer tables
-
-### Channel Insights
-
-- Public-channel snapshot workflow only
-- Resolves a channel from URL, handle, or ID through the YouTube Data API
-- Stores local snapshot history in SQLite under `outputs/channel_insights/`
-- Computes topic, format, title pattern, outlier, and next-topic insights
-- Supports optional BERTopic beta mode through an external artifact manifest
-
-### Thumbnails
-
-- Thumbnail-only workspace
-- AI thumbnail generation with Gemini or OpenAI
-- Public thumbnail preview/export from a YouTube video URL or video ID
-- Stores generated images under `outputs/thumbnails/`
-
-### Outlier Finder
-
-- Niche and outlier discovery workflow
-- Uses public YouTube API search plus internal scoring and optional AI explanation
-
-### Ytuber
-
-- AI suite workspace for creator ideation, planning, and channel review flows
-- Remains available as a standalone page
-
-### Tools
-
-- Creator utility workspace for metadata, thumbnail, transcript, audio, and video operations
-- Still depends on `yt-dlp`, `youtube-transcript-api`, and `ffmpeg`
-
-## Service Layer
-
-Active runtime services are concentrated under `src/services/`:
-
-- `channel_insights_service.py`
-- `channel_snapshot_store.py`
-- `public_channel_service.py`
-- `topic_analysis_service.py`
-- `topic_model_runtime.py`
-- `model_artifact_service.py`
-- `thumbnail_hub_service.py`
-- `outliers_finder.py`
-- `outlier_ai.py`
-
-Shared utilities remain under `src/utils/`.
-
-Thumbnail image generation continues to use:
-
-- `src/llm_integration/thumbnail_generator.py`
-
-## External Dependencies
-
-### Required
-
-- YouTube Data API v3 for public channel and niche data
-- Gemini or OpenAI keys for optional AI features
-
-### Optional
-
-- BERTopic artifact manifest for experimental model-backed topic clustering in `Channel Insights`
-
-BERTopic artifacts are never committed into the repo and are never loaded during app boot. If the artifact is missing or unavailable, the app falls back to heuristic topic analysis.
+In V5, `Channel Insights` is public-only. It does not use Google OAuth and it does not merge owner-only YouTube Analytics metrics.
 
 ## Model-Backed Topic Flow
 
 ```mermaid
 flowchart LR
-    A["Streamlit secrets"] --> B["MODEL_ARTIFACTS_MANIFEST_URL"]
-    B --> C["src/services/model_artifact_service.py"]
-    C --> D["Manifest JSON"]
-    D --> E["Artifact URL + checksum"]
-    E --> F["outputs/models/runtime/<bundle_version>/"]
-    F --> G["src/services/topic_model_runtime.py"]
-    G --> H["src/services/channel_insights_service.py"]
-    H --> I["dashboard/views/channel_insights.py"]
+    A["Streamlit secrets"] --> B["MODEL_ARTIFACTS_ENABLED"]
+    A --> C["MODEL_ARTIFACTS_MANIFEST_URL"]
+    C --> D["src/services/model_artifact_service.py"]
+    D --> E["Manifest JSON"]
+    E --> F["artifact_url + sha256 + bundle_version"]
+    F --> G["Download on explicit beta refresh only"]
+    G --> H["outputs/models/runtime/<bundle_version>/"]
+    H --> I["src/services/topic_model_runtime.py"]
+    I --> J["src/services/channel_insights_service.py"]
+    J --> K["dashboard/views/channel_insights.py"]
+    D --> L["Fallback to heuristic topics"]
+    L --> J
 ```
 
-## Deployment Rules
+Topic modes:
 
-- Keep `streamlit_app.py` unchanged as the deployment entrypoint
-- Keep routing inside `dashboard/app.py`
-- Do not require Google OAuth or owner-only analytics secrets
-- Do not make startup depend on optional model artifacts
+- `Heuristic Topics` uses built-in keyword and rule grouping
+- `Model-Backed Topics` uses optional BERTopic semantic grouping
 
-This build still includes the `Tools` page, so:
+## Branch Notes
 
-- `packages.txt` continues to install `ffmpeg`
-- runtime dependencies still include `yt-dlp` and `youtube-transcript-api`
-
-## Removed From Runtime
-
-This cleaned V4 build intentionally excludes:
-
-- the sidebar Assistant
-- Google OAuth
-- owner-only YouTube Analytics metrics
-
-## Archived Material
-
-Legacy research assets and older modeling material remain outside the runtime path under:
-
-- `research_archive/`
-
-Those assets are preserved for reference, but they are not part of the Streamlit deployment contract.
+- V5 removes the global `Assistant`
+- V5 removes Google OAuth and owner-only analytics overlays
+- V5 renames page 3 to `Thumbnails`
+- BERTopic is optional and never required at app boot

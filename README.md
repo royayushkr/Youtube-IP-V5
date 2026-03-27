@@ -1,12 +1,8 @@
 # YouTube IP V5
 
-YouTube IP V4 is a lighter Streamlit app for YouTube benchmarking, public channel intelligence, thumbnail work, and outlier research.
+YouTube IP V5 is the lighter Streamlit branch for YouTube benchmarking, public channel intelligence, thumbnail work, outlier research, and the retained AI suite pages.
 
-Live app:
-
-- [youtube-ip-v4.streamlit.app](https://youtube-ip-v4.streamlit.app/)
-
-## Branch Tag And Deploy Targets
+## Branch And Deploy Targets
 
 - Original repo branch tag: `youtube-ip-v5`
 - Original repo: `matt-foor/purdue-youtube-ip`
@@ -14,189 +10,126 @@ Live app:
 - Deploy branch: `main`
 - PR branch reference: [youtube-ip-v5](https://github.com/matt-foor/purdue-youtube-ip/tree/youtube-ip-v5)
 
-## V5 Positioning
-
-V5 keeps the AI suite pages that still matter to the workflow, but trims the app shell:
-
-- Assistant removed
-- Google OAuth removed
-- Channel Insights is public-only
-- `Recommendations` is renamed in-app to `Thumbnails`
-
-For the full branch comparison and the model-backed deployment notes, see:
-
-- [Deployment And Versions](docs/DEPLOYMENT_AND_VERSIONS.md)
-- [Architecture](docs/ARCHITECTURE.md)
-
-## App Surface
-
-The app now keeps a lighter core structure while preserving the AI suite pages that are still important to the product.
-
-Primary sidebar order:
+## Sidebar Navigation
 
 1. `Channel Analysis`
 2. `Channel Insights`
 3. `Thumbnails`
 4. `Outlier Finder`
-
-Additional AI suite pages:
-
 5. `Ytuber`
 6. `Tools`
 7. `Deployment`
 
-### 1. Channel Analysis
+V5 removes the global `Assistant` and removes Google OAuth from `Channel Insights`, but it keeps `Ytuber`, `Tools`, and `Deployment`.
 
-Dataset-backed benchmarking across the committed CSV files in `data/youtube api data/`.
+## What Each Page Solves
 
-It supports:
+| Page | Problem Solved | Main Inputs And Services | Main Outputs |
+| --- | --- | --- | --- |
+| `Channel Analysis` | Benchmark bundled YouTube datasets by category, channel, and time range | CSV files in `data/youtube api data/`, pandas, visualization helpers | KPI cards, trend charts, top channels, top videos |
+| `Channel Insights` | Track a public channel over time and understand what is working now | `public_channel_service`, `channel_snapshot_store`, `channel_insights_service`, optional BERTopic | snapshot history, topic trends, format patterns, outliers, next-topic ideas |
+| `Thumbnails` | Generate or export thumbnails without mixing in broader strategy UI | `thumbnail_generator.py`, `thumbnail_hub_service.py`, public YouTube thumbnail URLs | generated thumbnails, preview cards, downloadable images |
+| `Outlier Finder` | Discover overperforming videos in a niche | `outliers_finder.py`, `outlier_ai.py`, YouTube Data API | scored outlier tables, breakout charts, AI research cards |
+| `Ytuber` | Work on one live channel with creator-focused AI tooling | YouTube Data API, pooled API keys, thumbnail generator, outlier handoff | AI Studio outputs, audit views, keyword insights, planner views |
+| `Tools` | Export or inspect public YouTube assets | `youtube_tools.py`, `transcript_service.py`, `yt-dlp`, `ffmpeg` | metadata previews, transcript exports, audio/video downloads, thumbnail downloads |
+| `Deployment` | Show deployment and setup instructions inside the app | static app guidance in `dashboard/app.py` | deploy notes and secrets setup |
 
-- category-level portfolio analysis
-- channel filters
-- date filters
-- KPI summaries
-- top channels and top videos
-- publishing-day analysis
-- views versus engagement analysis
+## End-To-End Data Pipeline
 
-Main file:
+```mermaid
+flowchart TD
+    A["GitHub repo data<br/>data/youtube api data/*.csv"] --> B["streamlit_app.py"]
+    U["User actions in Streamlit"] --> B
+    B --> C["dashboard/app.py router"]
+    C --> D["dashboard/components/sidebar.py"]
+    D --> E["Page views"]
 
-- `dashboard/views/channel_analysis.py`
+    S["Streamlit secrets / env vars"] --> F["src/utils/api_keys.py"]
+    F --> G["YouTube Data API v3"]
+    F --> H["Gemini / OpenAI"]
 
-### 2. Channel Insights
+    A --> J["Channel Analysis + Thumbnails"]
+    G --> K["Ytuber / Channel Insights / Outlier Finder / Tools"]
+    H --> L["Thumbnail generation, AI reports, AI Studio"]
 
-Public-channel snapshot workflow for recurring channel analysis.
+    J --> N["pandas transforms + visualization helpers"]
+    K --> N
+    L --> N
 
-It supports:
+    N --> P["Tables, charts, cards, downloads, prompts"]
+    P --> Q["Rendered Streamlit UI"]
+```
 
-- add a public channel by URL, handle, or channel ID
-- refresh and persist public snapshots locally
-- topic trend analysis
-- format and title-pattern analysis
-- outlier and underperformer detection
-- next-topic and video-direction recommendations
-- optional BERTopic beta mode when external model artifact settings are configured
+## Live API Extraction Flow
 
-Main files:
+```mermaid
+flowchart LR
+    A["User enters query, channel, or URL"] --> B["Page view"]
+    B --> C["src/utils/api_keys.py"]
+    C --> D["Provider key selection"]
+    D --> E["YouTube Data API request"]
+    E --> F["Service-layer normalization"]
+    F --> G["pandas dataframes + scored payloads"]
+    G --> H["dashboard/components/visualizations.py"]
+    H --> I["Charts, tables, cards, and actions"]
+```
 
-- `dashboard/views/channel_insights.py`
-- `src/services/channel_insights_service.py`
-- `src/services/channel_snapshot_store.py`
-- `src/services/public_channel_service.py`
-- `src/services/topic_analysis_service.py`
-- `src/services/channel_idea_service.py`
+In V5, `Channel Insights` is public-only. It does not use Google OAuth and it does not request owner-only YouTube Analytics overlays.
 
-Storage:
+## Model-Backed Topics In Channel Insights
 
-- `outputs/channel_insights/channel_insights.db`
+Plain-language topic modes:
 
-### 3. Thumbnails
+- `Heuristic Topics` = built-in keyword and rule grouping from titles, descriptions, and tags
+- `Model-Backed Topics` = optional BERTopic semantic grouping loaded only when beta mode is explicitly requested
 
-Thumbnail-only workspace.
+```mermaid
+flowchart LR
+    A["Streamlit secrets"] --> B["MODEL_ARTIFACTS_ENABLED"]
+    A --> C["MODEL_ARTIFACTS_MANIFEST_URL"]
+    C --> D["model_artifact_service.py"]
+    D --> E["Manifest JSON"]
+    E --> F["artifact_url + sha256 + bundle_version"]
+    F --> G["Download on explicit beta refresh only"]
+    G --> H["outputs/models/runtime/<bundle_version>/"]
+    H --> I["topic_model_runtime.py"]
+    I --> J["channel_insights_service.py"]
+    J --> K["Channel Insights UI"]
+    J --> L["SQLite snapshot metadata"]
+    D --> M["Fallback to heuristics on missing / invalid artifact"]
+    M --> J
+```
 
-It supports:
+Current V5 manifest URL:
 
-- AI thumbnail generation with Gemini or OpenAI
-- richer thumbnail model, size, quality, and output controls
-- public YouTube thumbnail preview and export by URL or video ID
-- direct image downloads from Streamlit
+- `https://raw.githubusercontent.com/royayushkr/Youtube-IP-V5/main/data/model_manifests/bertopic_manifest_2026.03.27.json`
 
-Main files:
+## Streamlit Secrets
 
-- `dashboard/views/recommendations.py`
-- `src/llm_integration/thumbnail_generator.py`
-- `src/services/thumbnail_hub_service.py`
+```toml
+YOUTUBE_API_KEYS = ["your_youtube_key_1", "your_youtube_key_2"]
+GEMINI_API_KEYS = ["your_gemini_key_1", "your_gemini_key_2"]
+OPENAI_API_KEYS = ["your_openai_key_1", "your_openai_key_2"]
 
-Generated outputs:
+MODEL_ARTIFACTS_ENABLED = true
+MODEL_ARTIFACTS_MANIFEST_URL = "https://raw.githubusercontent.com/royayushkr/Youtube-IP-V5/main/data/model_manifests/bertopic_manifest_2026.03.27.json"
+MODEL_ARTIFACTS_CACHE_DIR = "outputs/models/runtime"
+MODEL_ARTIFACTS_DOWNLOAD_TIMEOUT_SECONDS = 300
+MODEL_ARTIFACTS_MAX_SIZE_MB = 512
+```
 
-- `outputs/thumbnails/`
+## V4 Vs V5
 
-### 4. Outlier Finder
-
-Standalone niche-research and outlier-video discovery workflow.
-
-It supports:
-
-- niche / keyword search
-- timeframe, region, and language filters
-- subscriber and duration filters
-- outlier scoring and scan summaries
-- breakout tables and charts
-- structured AI report cards
-
-Main files:
-
-- `dashboard/views/outlier_finder.py`
-- `src/services/outliers_finder.py`
-- `src/services/outlier_ai.py`
-
-### 5. Ytuber
-
-AI workspace for creator planning and generation workflows.
-
-It remains available for:
-
-- AI Studio generation flows
-- channel audit views
-- keyword and SEO exploration
-- competitor and planner workflows
-- outlier handoff from the workspace
-
-Main file:
-
-- `dashboard/views/ytuber.py`
-
-### 6. Tools
-
-Standalone creator utility workspace.
-
-It remains available for:
-
-- metadata preview
-- thumbnail download
-- transcript export
-- audio download
-- video download
-- batch and playlist operations
-
-Main files:
-
-- `dashboard/views/tools.py`
-- `src/services/youtube_tools.py`
-- `src/services/transcript_service.py`
-
-### 7. Deployment
-
-In-app deployment checklist and setup guidance for Streamlit.
-
-## What Was Removed
-
-This cleaned V4 build intentionally removes:
-
-- the sidebar Assistant
-- Google OAuth
-- owner-only YouTube Analytics metrics
-
-The app is still public-data-first, lighter to deploy, and easier to reason about, but it keeps the separate AI suite pages that are still part of the workflow.
-
-## Runtime Layout
-
-Active runtime surface:
-
-- `streamlit_app.py`
-- `dashboard/`
-- `src/services/`
-- `src/utils/`
-- `src/llm_integration/thumbnail_generator.py`
-- `data/model_manifests/`
-- `data/youtube api data/`
-- `outputs/channel_insights/`
-- `outputs/models/`
-- `outputs/thumbnails/`
-
-Historical research material remains archived under:
-
-- `research_archive/`
+| Area | V4 | V5 |
+| --- | --- | --- |
+| Sidebar Assistant | Present | Removed |
+| Google OAuth | Present | Removed |
+| Channel Insights | Public + optional owner overlays | Public-only |
+| Page 3 label | `Recommendations` | `Thumbnails` |
+| Ytuber | Present | Present |
+| Tools | Present | Present |
+| Deployment page | Present | Present |
+| BERTopic beta | Optional | Optional |
 
 ## Local Run
 
@@ -207,80 +140,7 @@ pip install -r requirements.txt
 streamlit run streamlit_app.py
 ```
 
-Alternative entrypoint:
+More detailed technical flow:
 
-```bash
-streamlit run dashboard/app.py
-```
-
-## Streamlit Deployment
-
-Deploy from:
-
-- repo: `royayushkr/Youtube-IP-V5`
-- branch: `main`
-- main file: `streamlit_app.py`
-
-The root Streamlit entrypoint remains:
-
-- `streamlit_app.py`
-
-## Secrets
-
-Add these in Streamlit Community Cloud or `.streamlit/secrets.toml`:
-
-```toml
-YOUTUBE_API_KEYS = ["your_youtube_key_1", "your_youtube_key_2"]
-GEMINI_API_KEYS = ["your_gemini_key_1", "your_gemini_key_2"]
-OPENAI_API_KEYS = ["your_openai_key_1", "your_openai_key_2"]
-```
-
-Optional single-key fallbacks also work:
-
-```toml
-YOUTUBE_API_KEY = "your_youtube_key"
-GEMINI_API_KEY = "your_gemini_key"
-OPENAI_API_KEY = "your_openai_key"
-```
-
-### Optional BERTopic Beta For Channel Insights
-
-If you want the experimental model-backed topic flow:
-
-```toml
-MODEL_ARTIFACTS_ENABLED = true
-MODEL_ARTIFACTS_MANIFEST_URL = "https://raw.githubusercontent.com/royayushkr/Youtube-IP-V5/main/data/model_manifests/bertopic_manifest_2026.03.27.json"
-MODEL_ARTIFACTS_CACHE_DIR = "outputs/models/runtime"
-MODEL_ARTIFACTS_DOWNLOAD_TIMEOUT_SECONDS = 300
-MODEL_ARTIFACTS_MAX_SIZE_MB = 512
-```
-
-Without those settings, `Channel Insights` stays on heuristic topics.
-
-The secret points to a manifest file in the deploy repo. That manifest then points to the external BERTopic artifact URL and checksum used by the lazy on-demand runtime load.
-
-## Data And Storage Notes
-
-- `Channel Analysis` reads committed CSVs under `data/youtube api data/`
-- `Channel Insights` stores local snapshot history in SQLite under `outputs/channel_insights/`
-- `Thumbnails` stores generated image files under `outputs/thumbnails/`
-- BERTopic artifacts, if enabled, download lazily into `outputs/models/runtime/`
-
-## Current Limitations
-
-- `Channel Insights` is public-only in this cleaned V4 build
-- no Google OAuth or owner-only metrics are available
-- BERTopic is optional and off by default
-- Channel Insights manual refreshes are persisted, but background daily jobs are not part of this Streamlit app
-- thumbnail export is intentionally scoped to public thumbnail URLs only
-- `Ytuber` and `Tools` remain richer AI-suite surfaces, so this build is lighter than before but not reduced to a strict 4-page app
-
-## Validation
-
-Recommended validation before deploy:
-
-```bash
-python3 -m py_compile dashboard/app.py
-pytest -q
-streamlit run streamlit_app.py --server.headless true
-```
+- [Architecture](docs/ARCHITECTURE.md)
+- [Deployment And Versions](docs/DEPLOYMENT_AND_VERSIONS.md)
