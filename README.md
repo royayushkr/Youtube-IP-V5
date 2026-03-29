@@ -1,10 +1,19 @@
 # YouTube IP V5
 
-YouTube IP V5 is the presentation-ready, Streamlit-deployable version of a five-version YouTube creator intelligence project. It brings together everything the team learned from V1 through V4, keeps the parts that proved most useful in deployment, and documents the experiments, removals, and tradeoffs that shaped the current product.
+YouTube IP V5 is the presentation-ready, Streamlit-deployable version of a five-version YouTube creator intelligence project. It keeps the strongest workflows from V1 through V4, explains what was removed and why, and makes the current app understandable at both the product and architecture level from a single starting document.
 
 Live app:
 
 - [youtube-ip-v5.streamlit.app](https://youtube-ip-v5.streamlit.app/)
+
+Quick jump:
+
+| If you want to understand... | Start here |
+| --- | --- |
+| current V5 runtime and page flows | [Architecture](docs/ARCHITECTURE.md) |
+| deployment targets, secrets, and version mapping | [Deployment And Versions](docs/DEPLOYMENT_AND_VERSIONS.md) |
+| the full project story and what changed from V1 to V5 | [Project Brief](docs/PROJECT_BRIEF.md) |
+| a GCP-friendly env template | [`.env.gcp.example`](.env.gcp.example) |
 
 ## At A Glance
 
@@ -18,6 +27,13 @@ Live app:
 | Current live provider families | `3` (`YouTube`, `Gemini`, `OpenAI`) |
 | Optional model-artifact path | `1` (`BERTopic` beta) |
 
+## Current V5 In One Minute
+
+- V5 runs on two core data paths: bundled GitHub CSVs for benchmarking and live API pulls for channel, outlier, tool, and thumbnail workflows.
+- `Channel Insights` is now public-only and supports two topic modes inside the same pipeline: default heuristics and optional BERTopic beta.
+- `Thumbnails`, `Ytuber`, and `Tools` keep the creative and AI-assisted workflows that stayed useful in deployment.
+- V5 intentionally removed the V4 `Assistant` and Google OAuth owner overlays to reduce operational weight and make the app easier to explain, deploy, and maintain.
+
 ## Why This Project Exists
 
 The original goal of the project was simple: help small-to-mid-sized YouTube creators make better content decisions with better intelligence than YouTube Studio alone provides. The early versions focused on public metadata, cross-channel benchmarking, semantic topic modeling, and AI-assisted recommendations so the team could answer questions like:
@@ -29,6 +45,8 @@ The original goal of the project was simple: help small-to-mid-sized YouTube cre
 That core question stayed constant across every version. What changed was the way the app packaged the answer.
 
 ## The Five-Version Story
+
+This is the shortest possible version-history view before the deeper tables below.
 
 ```mermaid
 flowchart LR
@@ -101,15 +119,17 @@ The current V5 sidebar order is:
 6. `Tools`
 7. `Deployment`
 
-| Page | What Problem It Solves | Main Inputs | Main Outputs |
-| --- | --- | --- | --- |
-| `Channel Analysis` | benchmark bundled datasets and compare portfolio-level performance | committed CSV data in `data/youtube api data/` | KPI cards, trend charts, channel/video rankings |
-| `Channel Insights` | analyze one tracked public channel over time | live YouTube Data API pulls, snapshot history, optional BERTopic | topic trends, format patterns, outliers, next-topic ideas |
-| `Thumbnails` | generate and export thumbnails without mixing broader strategy UI | Gemini/OpenAI image calls, public thumbnail URLs | generated concepts, preview cards, downloads |
-| `Outlier Finder` | find breakout videos in a niche | live YouTube API scans and outlier scoring | scored outlier tables, breakout snapshots, AI research |
-| `Ytuber` | run a creator-focused live workspace | live channel data, AI generation, creator tools | audits, planner outputs, AI Studio results |
-| `Tools` | inspect and export public YouTube assets | YouTube metadata, transcripts, yt-dlp, ffmpeg | previews, transcript exports, audio/video/thumbnail downloads |
-| `Deployment` | show deployment/setup guidance inside the app | static in-app instructions | repo, branch, secrets, deployment notes |
+This is the high-level page map. The detailed runtime handoffs for each page live in [Architecture](docs/ARCHITECTURE.md).
+
+| Page | What Problem It Solves | Main Inputs | Main Outputs | Runtime Type |
+| --- | --- | --- | --- | --- |
+| `Channel Analysis` | benchmark bundled datasets and compare portfolio-level performance | committed CSV data in `data/youtube api data/` | KPI cards, trend charts, channel/video rankings | dataset-backed |
+| `Channel Insights` | analyze one tracked public channel over time | live YouTube Data API pulls, snapshot history, optional BERTopic | topic trends, format patterns, outliers, next-topic ideas | mixed |
+| `Thumbnails` | generate and export thumbnails without mixing broader strategy UI | Gemini/OpenAI image calls, public thumbnail URLs | generated concepts, preview cards, downloads | mixed |
+| `Outlier Finder` | find breakout videos in a niche | live YouTube API scans and outlier scoring | scored outlier tables, breakout snapshots, AI research | mixed |
+| `Ytuber` | run a creator-focused live workspace | live channel data, AI generation, creator tools | audits, planner outputs, AI Studio results | mixed |
+| `Tools` | inspect and export public YouTube assets | YouTube metadata, transcripts, yt-dlp, ffmpeg | previews, transcript exports, audio/video/thumbnail downloads | API-backed |
+| `Deployment` | show deployment/setup guidance inside the app | static in-app instructions | repo, branch, secrets, deployment notes | static |
 
 ## Current V5 Workflow Map
 
@@ -152,9 +172,17 @@ flowchart TD
     I --> T["Prepared thumbnail download"]
 ```
 
+In practice, V5 works as three layers:
+
+- `Data`: bundled CSV benchmarking plus live provider/API calls
+- `Service`: normalization, scoring, topic assignment, artifact prep
+- `UI`: Streamlit cards, charts, tabs, downloads, and guided workflows
+
 For the full section-by-section mechanics, see [Architecture](docs/ARCHITECTURE.md).
 
 ## Current Interactive Surfaces
+
+These are the main interactive surfaces a user actually navigates once a page is open.
 
 | Page | Surface Type | Count | Current Surfaces | What They Do |
 | --- | --- | --- | --- | --- |
@@ -205,6 +233,12 @@ flowchart TD
     M3 --> N
 ```
 
+The architecture resolves into three repeatable patterns:
+
+- `Dataset path`: GitHub CSVs -> pandas transforms -> benchmark visuals
+- `Live API path`: secrets/env -> provider clients -> normalized payloads -> interactive pages
+- `Model path`: Channel Insights feature frame -> heuristic or BERTopic topics -> downstream metrics and recommendations
+
 For the deeper page-by-page breakdown, see [Architecture](docs/ARCHITECTURE.md#page-problem-map).
 
 ## API And Secrets Flow
@@ -230,6 +264,7 @@ This is the live V5 runtime path today:
 - bundled CSVs power `Channel Analysis`
 - live YouTube API calls power `Channel Insights`, `Outlier Finder`, `Ytuber`, `Tools`, and thumbnail URL export
 - Gemini/OpenAI power thumbnail generation, AI Studio, and Outlier AI research
+- the same secret names work in Streamlit secrets or GCP-style injected environment variables
 
 For the deeper API/service explanation, see [Architecture](docs/ARCHITECTURE.md#api-data-pipeline-overview).
 
@@ -291,7 +326,7 @@ Deployment notes in one screen:
 - V5 stays public-only for `Channel Insights`
 - the app reads `st.secrets` first, then environment variables
 - BERTopic beta only activates when `MODEL_ARTIFACTS_ENABLED=true` and the manifest URL is configured
-- the GCP-oriented env template is [`.env.gcp.example`](.env.gcp.example)
+- the GCP-oriented env template is [`.env.gcp.example`](.env.gcp.example), which is meant to be copied into Cloud Run, GCE, or Secret Manager-backed environment configuration rather than committed as a real secret file
 
 For the full deployment matrix and secrets history, see [Deployment And Versions](docs/DEPLOYMENT_AND_VERSIONS.md).
 
@@ -319,6 +354,12 @@ What V5 kept on purpose:
 - outlier research
 - the live `Ytuber` workspace
 - optional BERTopic beta modeling
+
+What V5 represents now:
+
+- a lighter public-facing app shell than V4
+- a clearer architecture for presentation, deployment, and handoff
+- a documented record of both the experiments that worked and the ones that were intentionally retired
 
 For the full narrative brief and retrospective, see [Project Brief](docs/PROJECT_BRIEF.md).
 
