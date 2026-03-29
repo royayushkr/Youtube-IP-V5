@@ -17,7 +17,7 @@ Quick jump:
 
 ## At A Glance
 
-| Metric | Value |
+| Metric | Current Count / State |
 | --- | --- |
 | Deployed versions documented here | `5` |
 | Live Streamlit app links | `5` |
