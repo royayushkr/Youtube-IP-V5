@@ -323,6 +323,8 @@ Current download-tab behavior:
 
 `Outlier Finder` is an evidence-first, AI-second workflow. It starts from a structured search request, builds a candidate frame, scores outliers, and only then offers AI interpretation.
 
+If you want the shorter demo version instead of the code-reading version, use [Outlier Finder Presentation Notes](OUTLIER_FINDER_PRESENTATION_NOTES.md).
+
 ### Search And Scoring Flow
 
 ```mermaid
@@ -333,12 +335,14 @@ flowchart TD
     D --> E["_fetch_channels(...)"]
     E --> F["_build_candidate_frame(...)"]
     F --> G["_apply_request_filters(...)"]
-    G --> H["_fetch_channel_baseline_cached(...)"]
-    H --> I["_prepare_peer_percentiles(...)"]
-    I --> J["_score_outlier_frame(...)"]
-    J --> K["OutlierSearchResult"]
-    K --> L["cards + table + charts"]
-    K --> M["optional AI research"]
+    G --> H["_prepare_peer_percentiles(...)"]
+    H --> I["preliminary shortlist"]
+    I --> J["_fetch_channel_baseline_cached(...)"]
+    H --> K["_score_outlier_frame(...)"]
+    J --> K
+    K --> L["OutlierSearchResult"]
+    L --> M["cards + table + charts"]
+    L --> N["optional AI research"]
 ```
 
 ### What the search form controls
@@ -354,6 +358,209 @@ flowchart TD
 - subscriber range and hidden-subscriber handling
 - excluded keywords
 - search depth and baseline limits
+
+### What the page is actually trying to do
+
+The page is trying to answer one practical research question:
+
+- which public videos in this niche are outperforming what we would normally expect for their age, channel size, and likely channel baseline?
+
+That is why the workflow is intentionally ordered like this:
+
+1. gather a public cohort from the YouTube API
+2. compute transparent performance signals
+3. score the cohort with an explainable heuristic
+4. show evidence first
+5. offer AI interpretation only after the evidence is visible
+
+### Request object and runtime guardrails
+
+The form is converted into `OutlierSearchRequest`, which carries all search, filter, and baseline settings through the service layer.
+
+Important runtime defaults:
+
+- search cache TTL: `1 hour`
+- baseline cache TTL: `6 hours`
+- baseline lookback window: `180 days`
+- default baseline shortlist: `15 channels`
+- default uploads sampled per shortlisted channel: `20`
+- search depth: up to `4` search pages, or `200` videos max
+
+### Candidate frame: what gets derived before scoring
+
+After the page fetches video and channel payloads, `_build_candidate_frame(...)` derives the working fields used by the charts, cards, and score.
+
+| Field | How it is derived | Why it matters |
+| --- | --- | --- |
+| `age_days` | video age in hours divided by `24` | makes very recent and older uploads more comparable |
+| `views_per_day` | `views / max(age_days, 1/24)` | core velocity metric |
+| `engagement_rate` | `(likes + comments) / max(views, 1)` | public interaction quality metric |
+| `views_per_subscriber` | `views / subscribers` when public | normalizes reach against channel size |
+| `duration_bucket` | bucketed from ISO duration | powers runtime comparisons |
+| `title_pattern` | title heuristic bucket | powers packaging comparisons |
+| `language_confidence` | metadata + title-script heuristic, clamped to `0..1` | helps reduce language noise |
+| `language_confidence_label` | `High`, `Medium`, or `Low` | used in filtering and scan-quality summaries |
+
+### Derived metric formulas
+
+```mermaid
+flowchart LR
+    A["YouTube video + channel payload"] --> B["published_at -> age_days"]
+    A --> C["views, likes, comments"]
+    A --> D["subscriber_count"]
+    A --> E["duration string"]
+    A --> F["title + language metadata"]
+
+    B --> G["views_per_day = views / max(age_days, 1/24)"]
+    C --> H["engagement_rate = (likes + comments) / max(views, 1)"]
+    D --> I["views_per_subscriber = views / subscribers"]
+    E --> J["duration_bucket"]
+    F --> K["title_pattern + language_confidence"]
+```
+
+### How language confidence is calculated
+
+Language confidence is not a model prediction. It is a weighted heuristic:
+
+- `+0.55` for a direct video-language match
+- `+0.20` for a direct channel default-language match
+- up to `+0.25` from title-script matching
+- penalties when metadata points away from the requested language
+
+Then the score is clamped to `0..1`.
+
+Thresholds used by the form:
+
+| Strictness | Threshold |
+| --- | --- |
+| `Strict` | `0.72` |
+| `Balanced` | `0.45` |
+| `Loose` | `0.20` |
+
+### Filter logic after candidate creation
+
+The service filters at two layers:
+
+- the search query itself
+- the returned candidate frame
+
+Post-filters include:
+
+- subscriber bucket and hidden-subscriber handling
+- explicit min and max subscriber counts
+- minimum views
+- freshness cap
+- duration bucket
+- exact-phrase verification
+- excluded keyword removal
+- language confidence threshold
+
+### Peer groups and percentile logic
+
+Peer percentiles answer:
+
+- how strong is this video relative to videos of similar age and roughly similar channel size?
+
+The grouping logic is:
+
+1. start with `size_bucket + age_bucket`
+2. if that group has fewer than `5` rows, fall back to `age_bucket`
+3. if the age bucket still has fewer than `8` rows, fall back to the full cohort
+
+Within that peer group the service computes:
+
+- `peer_views_percentile` from log-scaled `views_per_day`
+- `peer_engagement_percentile` from `engagement_rate`
+- `peer_subscriber_percentile` from log-scaled `views_per_subscriber`
+
+Then it blends them:
+
+- `peer_percentile = 0.60 * views + 0.25 * engagement + 0.15 * views_per_subscriber`
+
+### Why baseline enrichment exists
+
+Peer percentiles tell you whether a video is strong relative to the scanned cohort. Baseline enrichment adds a second question:
+
+- is this video also outperforming what its own channel usually does?
+
+The page does not fetch baselines for every channel. Instead it first builds a `preliminary_score`:
+
+- `100 * (0.70 * peer_percentile + 0.20 * peer_engagement_percentile + 0.10 * recency_boost)`
+
+Then it:
+
+- sorts by preliminary score
+- keeps only one candidate per channel
+- takes the top `baseline_channel_limit` channels
+- fetches recent uploads from those channels only
+- computes recent medians for that channel
+
+This is a quota-saving design choice, not an accident.
+
+### Baseline metrics that are computed
+
+For each shortlisted channel, the baseline loader computes medians over recent uploads:
+
+- median `views`
+- median `views_per_day`
+- median `engagement_rate`
+- median `views_per_subscriber` when subscribers are public
+
+Those become the channel-relative reference values for candidate scoring.
+
+### Final outlier score formula
+
+```mermaid
+flowchart TD
+    A["Candidate frame"] --> B["Peer percentiles"]
+    A --> C["Recency boost"]
+    A --> D["Channel baseline ratios when available"]
+
+    D --> E["baseline_component"]
+    B --> F["peer_percentile"]
+    B --> G["engagement_percentile"]
+
+    E --> H["score with baseline"]
+    F --> H
+    G --> H
+    C --> H
+
+    F --> I["score without baseline"]
+    G --> I
+    C --> I
+
+    H --> J["outlier_score 0-100"]
+    I --> J
+```
+
+If a usable baseline exists:
+
+- `outlier_score = 100 * (0.45 * baseline_component + 0.30 * peer_percentile + 0.15 * engagement_percentile + 0.10 * recency_boost)`
+
+If no usable baseline exists:
+
+- `outlier_score = 100 * (0.55 * peer_percentile + 0.25 * engagement_percentile + 0.20 * recency_boost)`
+
+The baseline component itself is built from normalized ratios:
+
+- views/day ratio weight: `0.60`
+- engagement ratio weight: `0.25`
+- views/subscriber ratio weight: `0.15`
+
+Those ratios are capped and log-compressed:
+
+- views/day cap: `8x`
+- engagement cap: `4x`
+- views/subscriber cap: `4x`
+
+### Score bands
+
+| Score band | Threshold |
+| --- | --- |
+| `Breakout` | `>= 85` |
+| `Strong` | `>= 70` |
+| `Promising` | `>= 55` |
+| `Early Signal` | `< 55` |
 
 ### Post-search result sections
 
@@ -375,6 +582,142 @@ flowchart TD
     E --> F["structured insight cards from Gemini/OpenAI"]
     F --> G["How This Works"]
 ```
+
+### What the visible page metrics mean
+
+#### Top outlier cards
+
+Each top result card shows:
+
+- `Outlier Score`
+- `Views`
+- `Views / Day`
+- subscriber display or `Hidden`
+- `Why It Stands Out`
+- `Research Cue`
+
+`Why It Stands Out` is chosen from the strongest available explanation, for example:
+
+- `1.8x the channel's median views/day`
+- top percentile in the scanned cohort
+- top percentile on engagement
+- strong early acceleration
+
+`Research Cue` is a lighter packaging hint built from:
+
+- title pattern
+- duration bucket
+- language-confidence label
+
+#### Breakout Snapshot summary cards
+
+The four summary cards are calculated directly from the scored result frame:
+
+| Card | Calculation |
+| --- | --- |
+| `Median Outlier Score` | median of `outlier_score` |
+| `Median Views / Day` | median of `views_per_day` |
+| `Scanned Videos / Channels` | `result.scanned_videos / result.scanned_channels` |
+| `High-Confidence Language Match` | share of rows where `language_confidence_label == "High"` |
+
+#### Breakout Map
+
+The scatter chart answers:
+
+- which videos are gaining velocity faster than channel size alone would suggest?
+
+Encodings:
+
+- x-axis: `log10(subscribers + 1)`
+- y-axis: `views_per_day`
+- bubble size: `outlier_score`
+- color: `age_bucket`
+
+#### Outlier Score By Publish Age
+
+This chart groups by `age_bucket` and shows:
+
+- median outlier score
+- median views/day as color
+- result count as the text label
+
+It helps tell whether momentum is concentrated in:
+
+- very fresh uploads
+- medium-age winners
+- or older durable videos
+
+#### Winning Video Lengths
+
+This chart groups by `duration_bucket` and shows:
+
+- outlier count
+- median outlier score as color
+
+It is meant to surface which runtime buckets are repeatedly winning in the current scan.
+
+#### Repeated Title Structures
+
+This chart groups by title heuristic buckets:
+
+- `How / Why`
+- `Numbered`
+- `Challenge / Test`
+- `Explainer`
+- `Versus`
+- `News / Update`
+- `General`
+
+For each pattern it shows:
+
+- number of surfaced results
+- median outlier score
+
+#### Scan Quality
+
+This card answers:
+
+- how clean and how trustworthy is this scanned cohort before I hand it to AI?
+
+| Scan quality metric | Calculation | Why it matters |
+| --- | --- | --- |
+| `Language Match` | `% of rows with High language confidence` | higher is usually cleaner for language-specific research |
+| `Recent Uploads` | `% of rows where age_days <= 14` | higher means the scan is more freshness-driven |
+| `Strong Signals` | `% of rows where outlier_score >= 75` | higher means more clearly strong candidates |
+| `Hidden Subs` | `% of rows with hidden subscriber counts` | higher weakens channel-size comparisons |
+
+### What the AI layer is and is not doing
+
+The `AI Research` section does not generate the outlier score. It reads the already-scored result frame and turns it into:
+
+- breakout theme cards
+- title pattern observations
+- repeatable content angles
+- notable anomalies
+- next-step suggestions
+
+So the recommended reading order is:
+
+1. inspect the scored cards and table
+2. inspect the breakout snapshot and scan-quality read
+3. only then generate AI interpretation
+
+### Caveats that matter when reading the page
+
+- no impressions, CTR, watch time, or retention are available
+- YouTube search is sampled and ranked, not exhaustive
+- subscriber counts can be hidden or rounded
+- language matching is heuristic, not guaranteed classification
+- some rows may use peer-only fallback scoring when channel baselines fail
+
+### Best way to read the page
+
+- use the cards first to identify strong candidates quickly
+- read `Views / Day` and `Outlier Score` together
+- use `Breakout Map` to compare velocity against channel size
+- use the duration and title charts to find repeatable packaging patterns
+- check `Scan Quality` before putting too much weight on the AI layer
+- treat the AI layer as interpretation, not evidence
 
 ## Ytuber
 
